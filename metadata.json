@@ -1,0 +1,6 @@
+{
+  "name": "etf500",
+  "description": "Plataforma de dados, screener e comparação de ETFs do Brasil (B3) e dos EUA (NYSE/NASDAQ).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
