@@ -31,6 +31,14 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
   const [sortField, setSortField] = useState<SortField>('aum');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
+  // Pagination / Lazy Rendering state to optimize INP (Interaction to Next Paint)
+  const [visibleCount, setVisibleCount] = useState<number>(30);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setVisibleCount(30);
+  }, [marketFilter, maxExpenseRatio, selectedSectors, searchQuery, sortField, sortOrder]);
+
   // Available unique sectors
   const availableSectors = useMemo(() => {
     const sectors = new Set<string>();
@@ -473,7 +481,7 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
           {/* MOBILE ADAPTIVE CARDS VIEW (< sm) */}
           <div className="sm:hidden space-y-3" id="screener-mobile-cards-list">
             {filteredEtfs.length > 0 ? (
-              filteredEtfs.map((etf) => {
+              filteredEtfs.slice(0, visibleCount).map((etf) => {
                 const isPositive = etf.daily_change >= 0;
                 const ytdVal = etf.ytd_change ?? (etf.daily_change * 8.5);
                 const isYtdPositive = ytdVal >= 0;
@@ -629,7 +637,7 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
                   {filteredEtfs.length > 0 ? (
-                    filteredEtfs.map((etf) => {
+                    filteredEtfs.slice(0, visibleCount).map((etf) => {
                       const isPositive = etf.daily_change >= 0;
                       const ytdVal = etf.ytd_change ?? (etf.daily_change * 8.5);
                       const isYtdPositive = ytdVal >= 0;
@@ -689,6 +697,21 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
               </table>
             </div>
           </div>
+
+          {filteredEtfs.length > visibleCount && (
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={() => setVisibleCount(prev => prev + 40)}
+                className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs font-mono rounded-lg transition-all shadow-2xs hover:shadow-xs cursor-pointer flex items-center gap-1.5"
+                id="btn-screener-load-more"
+              >
+                <span>Carregar Mais Ativos</span>
+                <span className="bg-slate-200 dark:bg-slate-800 text-[10px] text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded font-bold">
+                  +{filteredEtfs.length - visibleCount}
+                </span>
+              </button>
+            </div>
+          )}
         </section>
       </div>
     </div>
