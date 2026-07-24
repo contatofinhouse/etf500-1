@@ -182,6 +182,23 @@ export default function DetailView({ ticker, fromView, fromManager, onNavigate }
     };
   }, [etf.ticker, timeframe]);
 
+  // Dynamic Real Price and Daily Change computation from historyData (100% dynamic)
+  const dynamicPriceInfo = useMemo(() => {
+    if (historyData.length >= 2) {
+      const latest = historyData[historyData.length - 1].close_price;
+      const previous = historyData[historyData.length - 2].close_price;
+      const dailyChange = previous > 0 ? ((latest - previous) / previous) * 100 : etf.daily_change;
+      return {
+        currentPrice: latest,
+        dailyChange: dailyChange
+      };
+    }
+    return {
+      currentPrice: etf.current_price,
+      dailyChange: etf.daily_change
+    };
+  }, [historyData, etf]);
+
   // Period performance calculation
   const periodStats = useMemo(() => {
     if (historyData.length < 2) {
@@ -377,8 +394,8 @@ export default function DetailView({ ticker, fromView, fromManager, onNavigate }
   };
 
   const hoveredPoint = hoverIndex !== null ? historyData[hoverIndex] : null;
-  const currentPriceDisplay = hoveredPoint ? hoveredPoint.close_price : etf.current_price;
-  const isVariationPositive = etf.daily_change >= 0;
+  const currentPriceDisplay = hoveredPoint ? hoveredPoint.close_price : dynamicPriceInfo.currentPrice;
+  const isVariationPositive = dynamicPriceInfo.dailyChange >= 0;
 
   return (
     <div className="w-full space-y-6 animate-fade-in" id={`etf-detail-${etf.ticker.toLowerCase()}`}>
@@ -503,7 +520,7 @@ export default function DetailView({ ticker, fromView, fromManager, onNavigate }
                   isVariationPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                 }`}>
                   {isVariationPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                  {isVariationPositive ? '+' : ''}{etf.daily_change.toFixed(2)}%
+                  {isVariationPositive ? '+' : ''}{dynamicPriceInfo.dailyChange.toFixed(2)}%
                 </span>
                 <span className="text-slate-400 dark:text-slate-500 text-xs font-normal">Hoje</span>
               </div>
@@ -537,7 +554,7 @@ export default function DetailView({ ticker, fromView, fromManager, onNavigate }
             </h2>
           </div>
           <p className="text-sm sm:text-base text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
-            O <strong>{etf.ticker}</strong> ({etf.name}) é um ETF listado na B3 negociado atualmente em <strong>{etf.currency === 'USD' ? 'US$' : 'R$'} {etf.current_price.toFixed(2)}</strong>, registrando uma variação de <strong className={isVariationPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>{isVariationPositive ? '+' : ''}{etf.daily_change.toFixed(2)}%</strong> no dia. {etf.description} Possui taxa de administração de <strong>{etf.expense_ratio}% a.a.</strong>{etf.manager && !etf.description?.includes(etf.manager) ? <>, gerido pela <button onClick={() => onNavigate('gestora', { manager: etf.manager })} className="font-bold underline text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors cursor-pointer">{etf.manager}</button></> : ''} e enquadramento na classe de <strong>{etf.category || etf.sector}</strong>.
+            O <strong>{etf.ticker}</strong> ({etf.name}) é um ETF listado na B3 negociado atualmente em <strong>{etf.currency === 'USD' ? 'US$' : 'R$'} {dynamicPriceInfo.currentPrice.toFixed(2)}</strong>, registrando uma variação de <strong className={isVariationPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>{isVariationPositive ? '+' : ''}{dynamicPriceInfo.dailyChange.toFixed(2)}%</strong> no dia. {etf.description} Possui taxa de administração de <strong>{etf.expense_ratio}% a.a.</strong>{etf.manager && !etf.description?.includes(etf.manager) ? <>, gerido pela <button onClick={() => onNavigate('gestora', { manager: etf.manager })} className="font-bold underline text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors cursor-pointer">{etf.manager}</button></> : ''} e enquadramento na classe de <strong>{etf.category || etf.sector}</strong>.
           </p>
         </div>
       </section>
