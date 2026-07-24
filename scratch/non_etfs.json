@@ -1,0 +1,972 @@
+[
+  [
+    "5PRE11",
+    "EQUITY",
+    "IT NOW PRE 5F11"
+  ],
+  [
+    "ABTC11",
+    "EQUITY",
+    "BTGP ABTC   CI"
+  ],
+  [
+    "ACWI11",
+    "EQUITY",
+    "XPETFACWI   CI"
+  ],
+  [
+    "AGRI11",
+    "EQUITY",
+    "BB ETF IAGROCI"
+  ],
+  [
+    "ALUG11",
+    "EQUITY",
+    "INVESTO ALUGCI"
+  ],
+  [
+    "AREA11",
+    "EQUITY",
+    "BTGP AREA   F11"
+  ],
+  [
+    "ARGE11",
+    "EQUITY",
+    "INVESTOARGE CI"
+  ],
+  [
+    "AUPO11",
+    "EQUITY",
+    "BTGP AUPO   F11"
+  ],
+  [
+    "AURO11",
+    "EQUITY",
+    "ETF BV AURO CI"
+  ],
+  [
+    "AUVP11",
+    "EQUITY",
+    "BTGTEVA AUVPCI"
+  ],
+  [
+    "B3BR11",
+    "EQUITY",
+    "IT NOW B3BR+CI"
+  ],
+  [
+    "B5MB11",
+    "EQUITY",
+    "BRAD IMA,B5MF11"
+  ],
+  [
+    "B5P211",
+    "EQUITY",
+    "IT NOW B5P2 F11"
+  ],
+  [
+    "BBOI11",
+    "EQUITY",
+    "BB ETF BOI GCI"
+  ],
+  [
+    "BBOV11",
+    "EQUITY",
+    "BB ETF IBOV CI"
+  ],
+  [
+    "BBSD11",
+    "EQUITY",
+    "BB ETF SP DVCI"
+  ],
+  [
+    "BCIC11",
+    "EQUITY",
+    "B INDEX CICLCI"
+  ],
+  [
+    "BDEF11",
+    "EQUITY",
+    "B INDEX DEFECI"
+  ],
+  [
+    "BDOM11",
+    "EQUITY",
+    "INVESTO BDOMCI"
+  ],
+  [
+    "BEST11",
+    "EQUITY",
+    "INVESTOBEST CI"
+  ],
+  [
+    "BITC11",
+    "EQUITY",
+    "BPTEVABITC  CI"
+  ],
+  [
+    "BITH11",
+    "EQUITY",
+    "BITCOIN HASHCI"
+  ],
+  [
+    "BITI11",
+    "EQUITY",
+    "ETF GALAXY BCI"
+  ],
+  [
+    "BIZD11",
+    "EQUITY",
+    "INVESTO BIZDCI"
+  ],
+  [
+    "BLFT11",
+    "EQUITY",
+    "B INDEX BLFTF11"
+  ],
+  [
+    "BLOK11",
+    "EQUITY",
+    "INVESTO BLOKCI"
+  ],
+  [
+    "BMMT11",
+    "EQUITY",
+    "B INDEX MOMECI"
+  ],
+  [
+    "BNDX11",
+    "EQUITY",
+    "INVESTO BNDXCI"
+  ],
+  [
+    "BNKS11",
+    "EQUITY",
+    "INVESTOBANK CI"
+  ],
+  [
+    "BOL511",
+    "EQUITY",
+    "B INDEX BOL F11"
+  ],
+  [
+    "BOVA11",
+    "EQUITY",
+    "ISHARES BOVACI  ATZ"
+  ],
+  [
+    "BOVB11",
+    "EQUITY",
+    "ETF BRA IBOVCI"
+  ],
+  [
+    "BOVS11",
+    "EQUITY",
+    "SAFRAETFIBOVCI"
+  ],
+  [
+    "BOVV11",
+    "EQUITY",
+    "IT NOW IBOV CI"
+  ],
+  [
+    "BOVX11",
+    "EQUITY",
+    "TREND IBOVX CI"
+  ],
+  [
+    "BRAX11",
+    "EQUITY",
+    "ISHARES BRAXCI"
+  ],
+  [
+    "BRAZ11",
+    "EQUITY",
+    "BB ETF BRAZ CI"
+  ],
+  [
+    "BREW11",
+    "EQUITY",
+    "B INDEX BREWCI"
+  ],
+  [
+    "BTER11",
+    "EQUITY",
+    "INVESTOBTER CI"
+  ],
+  [
+    "BVBR11",
+    "EQUITY",
+    "INVCONSTQBRLCI"
+  ],
+  [
+    "BXPO11",
+    "EQUITY",
+    "INVESTO BXPOCI"
+  ],
+  [
+    "CAPE11",
+    "EQUITY",
+    "ISHARES CAP5CI"
+  ],
+  [
+    "CASA11",
+    "EQUITY",
+    "ETF CASA    CI"
+  ],
+  [
+    "CDIB11",
+    "EQUITY",
+    "IT NOW DIPCAF11"
+  ],
+  [
+    "CHIP11",
+    "EQUITY",
+    "INVESTO CHIPCI"
+  ],
+  [
+    "CMDB11",
+    "EQUITY",
+    "BTG COMMODITCI"
+  ],
+  [
+    "COIN11",
+    "EQUITY",
+    "ETF BV COIN CI"
+  ],
+  [
+    "CORN11",
+    "EQUITY",
+    "BB ETF MILHOCI"
+  ],
+  [
+    "CRPT11",
+    "EQUITY",
+    "CRIPTO20 EMPCI"
+  ],
+  [
+    "DEBB11",
+    "EQUITY",
+    "BTG DEB DI  F11"
+  ],
+  [
+    "DEFI11",
+    "EQUITY",
+    "DEFI HASH   CI"
+  ],
+  [
+    "DIVD11",
+    "EQUITY",
+    "IT NOW DIVD CI"
+  ],
+  [
+    "DIVO11",
+    "EQUITY",
+    "IT NOW IDIV CI"
+  ],
+  [
+    "DOLA11",
+    "EQUITY",
+    "BB ETF DOLARCI"
+  ],
+  [
+    "DOLB11",
+    "EQUITY",
+    "BTG SP DOLARCI"
+  ],
+  [
+    "DOLX11",
+    "EQUITY",
+    "TREND DOLAR CI"
+  ],
+  [
+    "DVER11",
+    "EQUITY",
+    "BB ETF DVER CI"
+  ],
+  [
+    "EBIT11",
+    "EQUITY",
+    "EMPIRICUSBTCCI"
+  ],
+  [
+    "ECOO11",
+    "EQUITY",
+    "ISHARES ECOOCI"
+  ],
+  [
+    "EETH11",
+    "EQUITY",
+    "BPTEVAETHE  CI"
+  ],
+  [
+    "ELAS11",
+    "EQUITY",
+    "SAFRAETFELASCI"
+  ],
+  [
+    "ESGB11",
+    "EQUITY",
+    "ETF ESG BTG CI"
+  ],
+  [
+    "ETHE11",
+    "EQUITY",
+    "ETHER HASH  CI"
+  ],
+  [
+    "ETHY11",
+    "EQUITY",
+    "ETF BV ETHY CI"
+  ],
+  [
+    "EWBZ11",
+    "EQUITY",
+    "ISHARES EQWECI"
+  ],
+  [
+    "FIND11",
+    "EQUITY",
+    "IT NOW IFNC CI"
+  ],
+  [
+    "FIXA11",
+    "EQUITY",
+    "BB FIXA11   F11"
+  ],
+  [
+    "FIXX11",
+    "EQUITY",
+    "ETF FIXX    CI"
+  ],
+  [
+    "FOMO11",
+    "EQUITY",
+    "FOMO HASH   CI"
+  ],
+  [
+    "GBTC11",
+    "EQUITY",
+    "GBTC BV HASHCI"
+  ],
+  [
+    "GDIV11",
+    "EQUITY",
+    "ETF BV GDIV CI"
+  ],
+  [
+    "GENB11",
+    "EQUITY",
+    "ETF BTG GENBCI"
+  ],
+  [
+    "GICP11",
+    "EQUITY",
+    "GENIAL DEBDIF11"
+  ],
+  [
+    "GLDI11",
+    "EQUITY",
+    "IT NOW GOLD CI"
+  ],
+  [
+    "GLDX11",
+    "EQUITY",
+    "INVESTO GLDXCI"
+  ],
+  [
+    "GLFT11",
+    "EQUITY",
+    "GLPG TEVALFTF11"
+  ],
+  [
+    "GOAT11",
+    "EQUITY",
+    "IT NOW SP+RFCI"
+  ],
+  [
+    "GOLB11",
+    "EQUITY",
+    "BTGP GOLB   CI"
+  ],
+  [
+    "GOLD11",
+    "EQUITY",
+    "TREND OURO  CI"
+  ],
+  [
+    "GOLX11",
+    "EQUITY",
+    "TREND OURO HCI"
+  ],
+  [
+    "GOVE11",
+    "EQUITY",
+    "IT NOW IGCT CI"
+  ],
+  [
+    "GPCA11",
+    "EQUITY",
+    "GRAO IPCA 2YF11"
+  ],
+  [
+    "GPUS11",
+    "EQUITY",
+    "INVESTOGPS&PCI"
+  ],
+  [
+    "GXUS11",
+    "EQUITY",
+    "GLPG GLBEXUSCI"
+  ],
+  [
+    "HASH11",
+    "EQUITY",
+    "HASHDEX NCI CI"
+  ],
+  [
+    "HERT11",
+    "EQUITY",
+    "ETF HEQREITSCI"
+  ],
+  [
+    "HGBR11",
+    "EQUITY",
+    "NUIBOXXBRLIGF11"
+  ],
+  [
+    "HIGH11",
+    "EQUITY",
+    "NUIBOVHIGHBTCI"
+  ],
+  [
+    "HODL11",
+    "EQUITY",
+    "INVESTO HODLCI"
+  ],
+  [
+    "HTEK11",
+    "EQUITY",
+    "IT NOW HCARECI"
+  ],
+  [
+    "HYBR11",
+    "EQUITY",
+    "NUIBOXXBRLHYF11"
+  ],
+  [
+    "IB5M11",
+    "EQUITY",
+    "IT NOW IB5M F11"
+  ],
+  [
+    "IBOB11",
+    "EQUITY",
+    "PACTUAL IBOVCI"
+  ],
+  [
+    "IDKA11",
+    "EQUITY",
+    "IT NOW PRE 3F11"
+  ],
+  [
+    "IMAB11",
+    "EQUITY",
+    "IT NOW IMA,BF11"
+  ],
+  [
+    "IMBB11",
+    "EQUITY",
+    "BRAD IMA,B  F11"
+  ],
+  [
+    "IRFM11",
+    "EQUITY",
+    "IT NOW IRF,MF11"
+  ],
+  [
+    "ISUS11",
+    "EQUITY",
+    "IT NOW ISE  CI"
+  ],
+  [
+    "IVVB11",
+    "EQUITY",
+    "ISHARE SP500CI"
+  ],
+  [
+    "IVWO11",
+    "EQUITY",
+    "INVESTOEMERGCI"
+  ],
+  [
+    "IWMI11",
+    "EQUITY",
+    "ETF BV IWMI CI"
+  ],
+  [
+    "JOGO11",
+    "EQUITY",
+    "INVESTO JOGOCI"
+  ],
+  [
+    "JURO11",
+    "EQUITY",
+    "SPARTA INFRACI"
+  ],
+  [
+    "LFIN11",
+    "EQUITY",
+    "BTGP LFIN   F11"
+  ],
+  [
+    "LFIX11",
+    "EQUITY",
+    "INVESTO LFIXF11"
+  ],
+  [
+    "LFTB11",
+    "EQUITY",
+    "INVESTO LFTBF11"
+  ],
+  [
+    "LFTI11",
+    "EQUITY",
+    "IT NOW SELICF11"
+  ],
+  [
+    "LFTS11",
+    "EQUITY",
+    "INVESTO LFTSF11"
+  ],
+  [
+    "LFTX11",
+    "EQUITY",
+    "TREND SELIC F11"
+  ],
+  [
+    "LLFT11",
+    "EQUITY",
+    "BTG TEVALFT F11"
+  ],
+  [
+    "LTBX11",
+    "EQUITY",
+    "TREND CASH BF11"
+  ],
+  [
+    "LTNB11",
+    "EQUITY",
+    "BTGP IRFM   F11"
+  ],
+  [
+    "LVOL11",
+    "EQUITY",
+    "NUIBOVLOWVOLCI"
+  ],
+  [
+    "MARG11",
+    "EQUITY",
+    "BTG MARGDEB F11"
+  ],
+  [
+    "MATB11",
+    "EQUITY",
+    "IT NOW IMAT CI"
+  ],
+  [
+    "META11",
+    "EQUITY",
+    "META HASH   CI"
+  ],
+  [
+    "MILL11",
+    "EQUITY",
+    "DIGITAL LIFECI"
+  ],
+  [
+    "NASD11",
+    "EQUITY",
+    "TREND NASDAQCI"
+  ],
+  [
+    "NB0211",
+    "EQUITY",
+    "NUIPCA02ANOSF11"
+  ],
+  [
+    "NB0511",
+    "EQUITY",
+    "NUIPCA05ANOSF11"
+  ],
+  [
+    "NB1011",
+    "EQUITY",
+    "NUIPCA10ANOSF11"
+  ],
+  [
+    "NBIT11",
+    "EQUITY",
+    "NUBITCOINFUTCI"
+  ],
+  [
+    "NBOV11",
+    "EQUITY",
+    "NUIBOVBRMAISCI"
+  ],
+  [
+    "NCDI11",
+    "EQUITY",
+    "NUCDISELICB3F11"
+  ],
+  [
+    "NDIV11",
+    "EQUITY",
+    "NU REND IBOVCI  ER"
+  ],
+  [
+    "NLFA11",
+    "EQUITY",
+    "NULFSRANBIMAF11"
+  ],
+  [
+    "NSDV11",
+    "EQUITY",
+    "NU IBOV DIV CI"
+  ],
+  [
+    "NTNS11",
+    "EQUITY",
+    "INVESTO NTNSF11"
+  ],
+  [
+    "NUCL11",
+    "EQUITY",
+    "INVESTO NUCLCI"
+  ],
+  [
+    "OURO11",
+    "EQUITY",
+    "B INDEX OUROCI"
+  ],
+  [
+    "PACB11",
+    "EQUITY",
+    "BTG INF LONGF11"
+  ],
+  [
+    "PACG11",
+    "EQUITY",
+    "BTGINF GERALF11"
+  ],
+  [
+    "PACL11",
+    "EQUITY",
+    "BTGP IMAB5  F11"
+  ],
+  [
+    "PEVC11",
+    "EQUITY",
+    "INVESTO PEVCCI"
+  ],
+  [
+    "PHIP11",
+    "EQUITY",
+    "ITBRCURTOPHRF11"
+  ],
+  [
+    "PIBB11",
+    "EQUITY",
+    "IT NOW PIBB CI"
+  ],
+  [
+    "PIPE11",
+    "EQUITY",
+    "ETF BV PIPE CI"
+  ],
+  [
+    "PKIN11",
+    "EQUITY",
+    "B INDEX PKINCI"
+  ],
+  [
+    "POSB11",
+    "EQUITY",
+    "GLGP SELIC BF11"
+  ],
+  [
+    "PREX11",
+    "EQUITY",
+    "TREND IRFM  F11"
+  ],
+  [
+    "QBTC11",
+    "EQUITY",
+    "QR BITCOIN  CI"
+  ],
+  [
+    "QDFI11",
+    "EQUITY",
+    "QR DEFI     CI"
+  ],
+  [
+    "QETH11",
+    "EQUITY",
+    "QR ETHER    CI"
+  ],
+  [
+    "QLBR11",
+    "EQUITY",
+    "RBINVESTOETFCI"
+  ],
+  [
+    "QQQI11",
+    "EQUITY",
+    "ETF BV QQQI CI"
+  ],
+  [
+    "QQQQ11",
+    "EQUITY",
+    "ETF QQQQ    CI"
+  ],
+  [
+    "QSOL11",
+    "EQUITY",
+    "QR SOLANA   CI"
+  ],
+  [
+    "RARA11",
+    "EQUITY",
+    "INVESTRARA11CI"
+  ],
+  [
+    "REVE11",
+    "EQUITY",
+    "IT NOW GREENCI"
+  ],
+  [
+    "RICO11",
+    "EQUITY",
+    "ETF RICO    CI"
+  ],
+  [
+    "SCVB11",
+    "EQUITY",
+    "INVESTO SCVBCI"
+  ],
+  [
+    "SFIX11",
+    "EQUITY",
+    "BTGP SFIX   F11"
+  ],
+  [
+    "SILK11",
+    "EQUITY",
+    "IT NOW CHINACI"
+  ],
+  [
+    "SLVR11",
+    "EQUITY",
+    "TREND PRATA CI"
+  ],
+  [
+    "SMAB11",
+    "EQUITY",
+    "BTG SMLL CAPCI"
+  ],
+  [
+    "SMAC11",
+    "EQUITY",
+    "IT NOW SMALLCI"
+  ],
+  [
+    "SMAL11",
+    "EQUITY",
+    "ISHARES SMALCI"
+  ],
+  [
+    "SOLH11",
+    "EQUITY",
+    "SOLANA HASH CI"
+  ],
+  [
+    "SPUB11",
+    "EQUITY",
+    "SAFRAIBOVESTCI"
+  ],
+  [
+    "SPVT11",
+    "EQUITY",
+    "SAFRAIBOVPVTCI"
+  ],
+  [
+    "SPXB11",
+    "EQUITY",
+    "BTG S&P 500 CI"
+  ],
+  [
+    "SPXH11",
+    "EQUITY",
+    "TREND SP BRLCI"
+  ],
+  [
+    "SPXI11",
+    "EQUITY",
+    "IT NOW SPXI CI"
+  ],
+  [
+    "SPXR11",
+    "EQUITY",
+    "IT NOW SP BRCI"
+  ],
+  [
+    "SPXU11",
+    "EQUITY",
+    "TRD SPX USD CI"
+  ],
+  [
+    "SPYI11",
+    "EQUITY",
+    "ETF BV SPYI CI"
+  ],
+  [
+    "SPYR11",
+    "EQUITY",
+    "B INDEX SPYRCI"
+  ],
+  [
+    "SVAL11",
+    "EQUITY",
+    "INVESTO SVALCI"
+  ],
+  [
+    "T10R11",
+    "EQUITY",
+    "IT NOW TSY10F11"
+  ],
+  [
+    "TD3511",
+    "EQUITY",
+    "IT NOW TD35 F11"
+  ],
+  [
+    "TD5011",
+    "EQUITY",
+    "IT NOW TD50 F11"
+  ],
+  [
+    "TD6011",
+    "EQUITY",
+    "IT NOW TD60 F11"
+  ],
+  [
+    "TECK11",
+    "EQUITY",
+    "IT NOW TECK CI"
+  ],
+  [
+    "TECX11",
+    "EQUITY",
+    "B INDEX TECXCI"
+  ],
+  [
+    "TIRB11",
+    "EQUITY",
+    "BTG DIV REALCI"
+  ],
+  [
+    "TOPY11",
+    "EQUITY",
+    "ETF BV TOPY CI"
+  ],
+  [
+    "TRIG11",
+    "EQUITY",
+    "TRG SMIC CAPCI"
+  ],
+  [
+    "USAL11",
+    "EQUITY",
+    "TREND US LRGCI"
+  ],
+  [
+    "USTK11",
+    "EQUITY",
+    "INVESTO USTKCI"
+  ],
+  [
+    "UTEC11",
+    "EQUITY",
+    "XPETFUSTECH CI"
+  ],
+  [
+    "UTLL11",
+    "EQUITY",
+    "INVESTOUTIL CI"
+  ],
+  [
+    "VWRA11",
+    "EQUITY",
+    "INVESTOVWRA CI"
+  ],
+  [
+    "WEB311",
+    "EQUITY",
+    "SMART HASH  CI"
+  ],
+  [
+    "WEJR11",
+    "EQUITY",
+    "BTGP WEJR   F11"
+  ],
+  [
+    "WRLD11",
+    "EQUITY",
+    "INVESTO WRLDCI"
+  ],
+  [
+    "XB3511",
+    "EQUITY",
+    "TREND NTNB35F11"
+  ],
+  [
+    "XBCI11",
+    "EQUITY",
+    "ETF BV XBCI CI  ER"
+  ],
+  [
+    "XBOV11",
+    "EQUITY",
+    "CAIXAETFXBOVCI"
+  ],
+  [
+    "XETH11",
+    "EQUITY",
+    "TREND ETH   CI"
+  ],
+  [
+    "XFIX11",
+    "EQUITY",
+    "TREND IFIX,LCI"
+  ],
+  [
+    "XINA11",
+    "EQUITY",
+    "XPETFCHINA  CI"
+  ],
+  [
+    "XRPH11",
+    "EQUITY",
+    "XRP HASH    CI"
+  ],
+  [
+    "XSPI11",
+    "EQUITY",
+    "ETF BV XSPI CI  ER"
+  ],
+  [
+    "YDRO11",
+    "EQUITY",
+    "IT NOW HYDROCI"
+  ]
+]

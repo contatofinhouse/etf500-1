@@ -4,11 +4,13 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { PieChart, Plus, Trash2, ShieldAlert, CheckCircle2, DollarSign, Globe, Award, ChevronRight, HelpCircle, Briefcase, Mail, User, Phone } from 'lucide-react';
+import { PieChart, Plus, Trash2, ShieldAlert, CheckCircle2, DollarSign, Globe, Award, ChevronRight, HelpCircle, Briefcase, Mail, User, Phone, Share2 } from 'lucide-react';
 import { ETF, PortfolioItem } from '../types';
-import { ETFS_LIST } from '../data/etfData';
+import { useEtfData } from '../context/EtfDataContext';
+import { shareRaioXOnWhatsApp } from '../utils/shareUtils';
 
 export default function RaioXView() {
+  const { etfs: ETFS_LIST } = useEtfData();
   // Initial starting portfolio (e.g., standard standard setup)
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([
     { ticker: 'IVVB11', percentage: 40 },
@@ -204,24 +206,41 @@ export default function RaioXView() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8 animate-fade-in" id="raio-x-view-container">
-      {/* Title block */}
-      <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-          <PieChart className="text-blue-600 dark:text-blue-400" size={24} />
-          Raio-X de Portfólio Global
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Insira seus ETFs, calibre os pesos e analise instantaneamente a diversificação de moedas e exposição geográfica.
-        </p>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8 animate-fade-in overflow-hidden" id="raio-x-view-container">
+      {/* Title block & Share */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+              Ferramenta Institucional
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <PieChart className="text-blue-600 dark:text-blue-400" size={24} />
+            Raio-X de Portfólio Global
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-2xl">
+            Simule sua carteira de ETFs, analise a sobreposição real dos ativos subjacentes, exposição cambial (BRL vs USD) e taxa média de administração ponderada.
+          </p>
+        </div>
+
+        <button
+          onClick={() => shareRaioXOnWhatsApp()}
+          className="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-md transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
+          title="Compartilhar ferramenta de Raio-X com grupos de Tesouraria no WhatsApp"
+          id="btn-share-whatsapp-raiox"
+        >
+          <Share2 size={13} className="text-slate-500 dark:text-slate-400" />
+          <span>WhatsApp</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
         {/* Left column (2/3 width on large): Portfolio Weight Manager */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6 min-w-0">
           
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 shadow-sm space-y-4 overflow-hidden">
             <h3 className="font-bold text-slate-900 dark:text-white text-base">
               Composição da sua Carteira
             </h3>
@@ -230,9 +249,9 @@ export default function RaioXView() {
             {totalRawPercentage !== 100 && (
               <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-300 rounded-lg text-xs flex gap-2">
                 <ShieldAlert size={16} className="shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 min-w-0">
                   <span className="font-bold">Aviso de Pesos Desbalanceados:</span>
-                  <p>
+                  <p className="break-words">
                     A soma das porcentagens declaradas é de <span className="font-bold">{totalRawPercentage}%</span>. Nós normalizamos automaticamente para <span className="font-bold">100%</span> no diagnóstico ao lado para garantir precisão estatística. Ajuste para fechar em 100% se desejar.
                   </p>
                 </div>
@@ -247,23 +266,23 @@ export default function RaioXView() {
                 return (
                   <div 
                     key={item.ticker}
-                    className="flex items-center justify-between p-3.5 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100 dark:border-slate-800 rounded-lg hover:border-slate-200 dark:hover:border-slate-700/80 transition-all gap-4"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100 dark:border-slate-800 rounded-lg hover:border-slate-200 dark:hover:border-slate-700/80 transition-all gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="px-2 py-0.5 text-xs font-black font-mono bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="px-2 py-0.5 text-xs font-black font-mono bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded border border-slate-200 dark:border-slate-700 shrink-0">
                         {item.ticker}
                       </span>
                       <div className="min-w-0">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white block truncate max-w-[140px] sm:max-w-xs">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
                           {details.name}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-mono mt-0.5 uppercase block">
+                        <span className="text-[10px] text-slate-400 font-mono mt-0.5 uppercase block truncate">
                           Taxa: {details.expense_ratio}% • {details.market}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 shrink-0">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-1">
                         <input
                           type="number"
@@ -296,12 +315,12 @@ export default function RaioXView() {
             </div>
 
             {/* Add Asset Selector bar */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-3 items-center">
-              <div className="flex-1 min-w-[150px]">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <div className="flex-1 min-w-0">
                 <select
                   value={selectedAddTicker}
                   onChange={(e) => setSelectedAddTicker(e.target.value)}
-                  className="w-full p-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none"
+                  className="w-full p-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none truncate"
                   id="select-add-portfolio-etf"
                 >
                   {ETFS_LIST.filter(e => !portfolio.some(p => p.ticker === e.ticker)).map(etf => (
@@ -312,140 +331,60 @@ export default function RaioXView() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-1 shrink-0">
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={addPercentage}
-                  onChange={(e) => setAddPercentage(parseInt(e.target.value) || 10)}
-                  className="w-14 p-1.5 text-center text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white"
-                />
-                <span className="text-xs font-bold text-slate-500 font-mono">%</span>
-              </div>
+              <div className="flex items-center justify-between sm:justify-start gap-3">
+                <div className="flex items-center gap-1 shrink-0">
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={addPercentage}
+                    onChange={(e) => setAddPercentage(parseInt(e.target.value) || 10)}
+                    className="w-14 p-1.5 text-center text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-white"
+                  />
+                  <span className="text-xs font-bold text-slate-500 font-mono">%</span>
+                </div>
 
-              <button
-                onClick={handleAddItem}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
-                id="btn-add-portfolio-item"
-              >
-                <Plus size={14} />
-                Adicionar
-              </button>
+                <button
+                  onClick={handleAddItem}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shrink-0 flex-1 sm:flex-none"
+                  id="btn-add-portfolio-item"
+                >
+                  <Plus size={14} />
+                  Adicionar
+                </button>
+              </div>
             </div>
           </div>
 
           {/* B2B Capture Lead Form integrated immediately underneath the results */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-md" id="b2b-lead-panel">
-            {!formSubmitted ? (
-              <form onSubmit={handleLeadSubmit} className="space-y-4">
-                <div className="space-y-1">
-                  <span className="inline-block px-1.5 py-0.5 text-[9px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 rounded uppercase font-mono">
-                    Assessoria Patrimonial Gratuita
-                  </span>
-                  <h3 className="font-extrabold text-slate-900 dark:text-white text-lg tracking-tight">
-                    Deseja um diagnóstico profissional gratuito da sua carteira?
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Nossos especialistas parceiros de grandes escritórios XP/BTG analisarão duplicidade de ativos, sobreposição de taxas e eficiência cambial para otimizar seus retornos.
-                  </p>
-                </div>
-
-                {formError && (
-                  <div className="p-2.5 text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 border border-rose-200/50 dark:border-rose-900 rounded-lg">
-                    {formError}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                      <User size={14} />
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="Nome Completo"
-                      value={leadName}
-                      onChange={(e) => setLeadName(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                      <Mail size={14} />
-                    </span>
-                    <input
-                      type="email"
-                      placeholder="E-mail"
-                      value={leadEmail}
-                      onChange={(e) => setLeadEmail(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                      <Phone size={14} />
-                    </span>
-                    <input
-                      type="tel"
-                      placeholder="DDD + Celular"
-                      value={leadPhone}
-                      onChange={(e) => setLeadPhone(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 justify-between">
-                  <div className="space-y-0.5">
-                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
-                      Tamanho do Patrimônio Estimado
-                    </label>
-                    <select
-                      value={leadPortfolioSize}
-                      onChange={(e) => setLeadPortfolioSize(e.target.value)}
-                      className="text-xs font-semibold bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-800 p-1.5 rounded-lg focus:outline-none"
-                    >
-                      <option>Menos de R$ 10.000</option>
-                      <option>R$ 10.000 - R$ 50.000</option>
-                      <option>R$ 50.000 - R$ 200.000</option>
-                      <option>R$ 200.000 - R$ 500.000</option>
-                      <option>Mais de R$ 500.000</option>
-                    </select>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5"
-                    id="btn-submit-lead"
-                  >
-                    {isSubmitting ? 'Registrando...' : 'Solicitar Diagnóstico'}
-                    <ChevronRight size={14} />
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div className="text-center py-6 space-y-3" id="b2b-lead-success-msg">
-                <div className="inline-flex p-3 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-full">
-                  <CheckCircle2 size={32} />
-                </div>
-                <h4 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                  Solicitação Registrada com Sucesso!
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-                  Olá, <span className="font-bold text-slate-800 dark:text-slate-200">{leadName}</span>! Os dados da sua simulação foram consolidados. Um especialista parceiro do escritório de investimentos entrará em contato via WhatsApp (<span className="font-bold font-mono">{leadPhone}</span>) em até 24h úteis para apresentar sua alocação otimizada.
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-md" id="b2b-lead-panel">
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <span className="inline-block px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 rounded uppercase font-mono">
+                  Assessoria Patrimonial Gratuita
+                </span>
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-lg tracking-tight">
+                  Deseja um diagnóstico profissional gratuito da sua carteira?
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Nossos especialistas parceiros analisarão duplicidade de ativos, sobreposição de taxas e eficiência cambial para otimizar seus retornos.
                 </p>
-                <button
-                  onClick={() => setFormSubmitted(false)}
-                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline pt-2"
-                >
-                  Simular novos dados
-                </button>
               </div>
-            )}
+
+              <div className="pt-2">
+                <a
+                  href="https://wa.me/5511955842951?text=Ol%C3%A1!%20Gostaria%20de%20solicitar%20um%20diagn%C3%B3stico%20profissional%20gratuito%20da%20minha%20carteira%20de%20ETFs."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-xl transition-all cursor-pointer inline-flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                  id="btn-submit-lead-whatsapp"
+                >
+                  <Phone size={16} />
+                  Solicitar Diagnóstico via WhatsApp
+                  <ChevronRight size={16} />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 

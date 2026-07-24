@@ -12,6 +12,11 @@ import DetailView from './components/DetailView';
 import CompareView from './components/CompareView';
 import RaioXView from './components/RaioXView';
 import StaticCodesGuide from './components/StaticCodesGuide';
+import GestoraView from './components/GestoraView';
+import InfoPagesView from './components/InfoPagesView';
+import NoticiasView from './components/NoticiasView';
+import { EtfDataProvider } from './context/EtfDataContext';
+import { shareGeneralOnWhatsApp } from './utils/shareUtils';
 
 export default function App() {
   // Navigation Router state
@@ -34,40 +39,21 @@ export default function App() {
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
     }
   }, [isDark]);
 
-  // General share handler for the footer
-  const handleShare = async () => {
-    const shareData = {
-      title: 'etf500 - Rastreador de ETFs',
-      text: 'Confira as análises e comparações de ETFs brasileiros e globais no etf500!',
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        setFooterCopied(true);
-        setTimeout(() => setFooterCopied(false), 2000);
-      }
-    } catch (err) {
-      // Fallback in case Web Share sheets are blocked/rejected
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        setFooterCopied(true);
-        setTimeout(() => setFooterCopied(false), 2000);
-      } catch (clipErr) {
-        console.error('Failed to copy', clipErr);
-      }
-    }
+  // General share handler for the footer and global actions
+  const handleShare = () => {
+    shareGeneralOnWhatsApp();
+    setFooterCopied(true);
+    setTimeout(() => setFooterCopied(false), 2500);
   };
 
-  // Sync state with browser location/history query params
+  // Sync state with browser location/history query params and SEO titles
   useEffect(() => {
     const handleUrlParsing = () => {
       const searchParams = new URLSearchParams(window.location.search);
@@ -80,8 +66,82 @@ export default function App() {
         }
       });
 
+      // Canonicalize manager url param on initial page load / direct access
+      if (params.manager) {
+        const canonicalManager = params.manager
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .trim();
+        
+        if (canonicalManager !== params.manager) {
+          params.manager = canonicalManager;
+          searchParams.set('manager', canonicalManager);
+          const cleanUrl = `${window.location.pathname}?${searchParams.toString()}`;
+          window.history.replaceState({ view: viewParam, params }, '', cleanUrl);
+        }
+      }
+
       setCurrentView(viewParam);
       setExtraParams(params);
+
+      // Route SEO titles & Global Schemas
+      if (viewParam === 'home') {
+        document.title = 'ETF500 | O Maior Portal e Rastreador de ETFs do Brasil e EUA';
+
+        // Inject Home FAQ & WebSite JSON-LD Schema
+        const schemaId = 'home-faq-schema';
+        let scriptEl = document.getElementById(schemaId) as HTMLScriptElement | null;
+        if (!scriptEl) {
+          scriptEl = document.createElement('script');
+          scriptEl.id = schemaId;
+          scriptEl.type = 'application/ld+json';
+          document.head.appendChild(scriptEl);
+        }
+
+        const faqSchema = {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "O que é um ETF e como funciona?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Um ETF (Exchange Traded Fund) é um fundo de índice negociado em bolsa como uma ação. Ele permite investir em uma carteira diversificada de ativos (como as 500 maiores empresas dos EUA via IVVB11/VOO) com baixas taxas de administração."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Como funciona o Imposto de Renda em ETFs no Brasil?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "ETFs de Ações têm alíquota fixa de 15% sobre o ganho de capital na venda. ETFs de Renda Fixa na B3 seguem a tabela regressiva ou alíquota fixa de 15% para prazos acima de 720 dias (como B5P211 e LFTS11)."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Qual a diferença entre IVVB11 (B3) e VOO (EUA)?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "O IVVB11 é negociado na B3 em Reais pela BlackRock Brasil. O VOO é negociado diretamente nas bolsas americanas em Dólar pela Vanguard. Ambos replicam o índice S&P 500."
+              }
+            }
+          ]
+        };
+
+        scriptEl.textContent = JSON.stringify(faqSchema);
+      } else if (viewParam === 'screener') {
+        document.title = 'Screener de ETFs | Filtre e Compare Ativos da B3 e EUA — ETF500';
+      } else if (viewParam === 'comparar') {
+        document.title = 'Comparador de ETFs | Compare Rentabilidade e Taxas — ETF500';
+      } else if (viewParam === 'raio-x') {
+        document.title = 'Raio-X de Portfólio Global | Análise de Diversificação — ETF500';
+      } else if (viewParam === 'gestora') {
+        document.title = `${params.manager ? params.manager.toUpperCase() : 'Gestora'} | ETFs Geridos e Patrimônio — ETF500`;
+      } else if (viewParam === 'noticias') {
+        document.title = 'Notícias sobre ETFs Hoje | Mercado, B3 e EUA — ETF500';
+      }
     };
 
     handleUrlParsing();
@@ -91,17 +151,27 @@ export default function App() {
 
   // Custom navigation handler supporting standard back navigation
   const navigate = (view: string, params: Record<string, string> = {}) => {
+    // Canonicalize manager params (e.g. 'itaú' -> 'itau') to prevent duplicate URL pages
+    const cleanedParams: Record<string, string> = { ...params };
+    if (cleanedParams.manager) {
+      cleanedParams.manager = cleanedParams.manager
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // strip accents (itaú -> itau)
+        .toLowerCase()
+        .trim();
+    }
+
     setCurrentView(view);
-    setExtraParams(params);
+    setExtraParams(cleanedParams);
 
     const searchParams = new URLSearchParams();
     searchParams.set('view', view);
-    Object.entries(params).forEach(([key, val]) => {
+    Object.entries(cleanedParams).forEach(([key, val]) => {
       searchParams.set(key, val);
     });
 
     const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    window.history.pushState({ view, params }, '', newUrl);
+    window.history.pushState({ view, params: cleanedParams }, '', newUrl);
     
     // Smooth scroll to top on navigation
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -116,6 +186,7 @@ export default function App() {
   };
 
   return (
+    <EtfDataProvider>
     <div className={isDark ? 'dark' : ''} id="app-theme-wrapper">
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
         
@@ -158,22 +229,40 @@ export default function App() {
           {currentView === 'raio-x' && (
             <RaioXView />
           )}
+
+          {currentView === 'gestora' && (
+            <GestoraView
+              managerId={extraParams.manager || ''}
+              onNavigate={navigate}
+            />
+          )}
+
+          {currentView === 'noticias' && (
+            <NoticiasView onNavigate={navigate} />
+          )}
+
+          {['privacidade', 'termos', 'contato', 'suporte', 'quem-somos'].includes(currentView) && (
+            <InfoPagesView
+              page={currentView}
+              onNavigate={navigate}
+            />
+          )}
         </main>
 
         {/* Footer section */}
         <footer className="w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-10 px-4 mt-auto transition-colors duration-200">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
             
             {/* Logo/Disclaimer col */}
-            <div className="space-y-3.5">
+            <div className="space-y-3.5 md:col-span-1">
               <span className="text-lg font-black tracking-tight text-blue-600 dark:text-blue-500 font-sans">
                 etf<span className="text-slate-900 dark:text-white">500</span>
               </span>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 etf500 é uma plataforma aberta, 100% gratuita para investidores brasileiros interessados em fundos de índice da B3 e bolsas americanas. Sem cadastros, sem mensalidades.
               </p>
-              <div className="text-[11px] text-slate-400 font-mono">
-                © {new Date().getFullYear()} etf500. Todos os direitos reservados.
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-sans font-medium">
+                Built proudly by ETF500.com.br 60.806.192.0001/50. Todos os Direitos Reservados.
               </div>
               <div className="pt-2 relative">
                 <button
@@ -221,16 +310,47 @@ export default function App() {
               </ul>
             </div>
 
+            {/* Institutional & Legal links col */}
+            <div className="space-y-3">
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 uppercase text-xs tracking-wider">
+                Institucional & Legal
+              </h4>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                <li>
+                  <button onClick={() => navigate('quem-somos')} className="hover:text-blue-600 transition-colors cursor-pointer" id="footer-link-quem-somos">
+                    Quem somos
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('contato')} className="hover:text-blue-600 transition-colors cursor-pointer" id="footer-link-contato">
+                    Contato
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('suporte')} className="hover:text-blue-600 transition-colors cursor-pointer" id="footer-link-suporte">
+                    Suporte & FAQ
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('privacidade')} className="hover:text-blue-600 transition-colors cursor-pointer" id="footer-link-privacidade">
+                    Política de Privacidade
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate('termos')} className="hover:text-blue-600 transition-colors cursor-pointer" id="footer-link-termos">
+                    Termos de Uso
+                  </button>
+                </li>
+              </ul>
+            </div>
+
             {/* B2B / Legal warning */}
             <div className="space-y-2.5">
               <h4 className="font-bold text-slate-800 dark:text-slate-200 uppercase text-xs tracking-wider">
-                Aviso Legal & Monetização
+                Isenção de Responsabilidade
               </h4>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                <strong>Isenção de Responsabilidade:</strong> As cotações apresentadas referem-se ao fechamento do dia útil anterior fornecido de forma estatística. Este portal não realiza recomendações de compra ou venda de valores mobiliários.
-              </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                Este site é monetizado de forma transparente por injeção de anúncios programáticos B2B e links afiliados com corretoras globais reguladas (Nomad/Avenue).
+                As cotações apresentadas referem-se ao fechamento estatístico do dia útil anterior. Este portal não realiza recomendações de compra ou venda de valores mobiliários.
               </p>
             </div>
 
@@ -244,5 +364,6 @@ export default function App() {
 
       </div>
     </div>
+    </EtfDataProvider>
   );
 }

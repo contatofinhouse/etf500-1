@@ -4,9 +4,12 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Star, RefreshCw, Landmark, Globe, Receipt, AlertCircle, ArrowLeft, TrendingUp, TrendingDown, HelpCircle, ArrowRight, Wallet, Percent, Tag } from 'lucide-react';
+import { Star, RefreshCw, Landmark, Globe, Receipt, AlertCircle, ArrowLeft, TrendingUp, TrendingDown, HelpCircle, ArrowRight, Wallet, Percent, Tag, Loader2, BarChart3, Share2 } from 'lucide-react';
 import { ETF, HistoricalPrice } from '../types';
-import { ETFS_LIST, generateHistory, US_TO_BRL_RATE } from '../data/etfData';
+import { generateHistory, US_TO_BRL_RATE } from '../data/etfData';
+import { fetchRealHistory, TimeFrame } from '../services/yahooFinanceApi';
+import { useEtfData } from '../context/EtfDataContext';
+import { shareEtfOnWhatsApp } from '../utils/shareUtils';
 
 interface DetailViewProps {
   ticker: string;
@@ -14,10 +17,11 @@ interface DetailViewProps {
 }
 
 export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
+  const { etfs: ETFS_LIST } = useEtfData();
   // Find current ETF
   const etf = useMemo(() => {
     return ETFS_LIST.find(e => e.ticker.toUpperCase() === ticker.toUpperCase()) || ETFS_LIST[0];
-  }, [ticker]);
+  }, [ticker, ETFS_LIST]);
 
   // Favorites state
   const [isFavorite, setIsFavorite] = useState(false);
@@ -42,8 +46,77 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
     localStorage.setItem('etf500_favorites', JSON.stringify(current));
   };
 
+  // SEO Programático: Injeção de Dados Estruturados JSON-LD (FinancialProduct & BreadcrumbList)
+  useEffect(() => {
+    const jsonLdId = `json-ld-${etf.ticker.toLowerCase()}`;
+    let scriptEl = document.getElementById(jsonLdId) as HTMLScriptElement | null;
+
+    const financialProductSchema = {
+      "@context": "https://schema.org",
+      "@type": "FinancialProduct",
+      "name": etf.name,
+      "tickerSymbol": etf.ticker,
+      "description": etf.description,
+      "feesAndCommissionsSpecification": `Taxa de Administração de ${etf.expense_ratio}% a.a.`,
+      "currency": etf.currency,
+      "offers": {
+        "@type": "Offer",
+        "price": etf.current_price,
+        "priceCurrency": etf.currency
+      }
+    };
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://etf500.com.br"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Screener",
+          "item": "https://etf500.com.br/?view=screener"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": etf.ticker,
+          "item": `https://etf500.com.br/?view=etf&ticker=${etf.ticker}`
+        }
+      ]
+    };
+
+    // Dynamic SEO title & description
+    document.title = `${etf.ticker} — Cotação, Desempenho e Composição | ETF500`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      const summaryText = `O ${etf.ticker} (${etf.name}) é um ETF listado na B3 negociado atualmente em ${etf.currency === 'USD' ? 'US$' : 'R$'} ${etf.current_price.toFixed(2)}, com variação de ${etf.daily_change >= 0 ? '+' : ''}${etf.daily_change.toFixed(2)}% hoje. ${etf.description} Taxa de administração de ${etf.expense_ratio}% a.a.`;
+      metaDesc.setAttribute('content', summaryText);
+    }
+
+    if (!scriptEl) {
+      scriptEl = document.createElement('script');
+      scriptEl.id = jsonLdId;
+      scriptEl.type = 'application/ld+json';
+      document.head.appendChild(scriptEl);
+    }
+
+    scriptEl.textContent = JSON.stringify([financialProductSchema, breadcrumbSchema]);
+
+    return () => {
+      if (scriptEl && scriptEl.parentNode) {
+        scriptEl.parentNode.removeChild(scriptEl);
+      }
+    };
+  }, [etf]);
+
   // Timeframe selector
-  const [timeframe, setTimeframe] = useState<'1M' | '6M' | '1Y' | '5Y' | 'MAX'>('1Y');
+  const [timeframe, setTimeframe] = useState<TimeFrame>('1Y');
 
   // Convert timeline to display label
   const timelineLabel = {
@@ -54,14 +127,114 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
     'MAX': 'Histórico Completo'
   }[timeframe];
 
-  // Dynamic currency calculator
-  const [calcInput, setCalcInput] = useState<string>('10'); // defaults to 10 shares
-  const [calcMode, setCalcMode] = useState<'SHARES_TO_CURRENCY' | 'CURRENCY_TO_SHARES'>('SHARES_TO_CURRENCY');
+  // Dynamic Investment Simulator state
+  const [simulatedAmountInput, setSimulatedAmountInput] = useState<string>('10000');
 
-  // Generate historical data
-  const historyData = useMemo(() => {
-    return generateHistory(etf.ticker, timeframe);
+  // Benchmark overlay toggles for the chart
+  const [showCDI, setShowCDI] = useState<boolean>(false);
+  const [showIBOV, setShowIBOV] = useState<boolean>(false);
+  const [showSP500, setShowSP500] = useState<boolean>(false);
+
+  // Real Historical Data & Loading state
+  const [historyData, setHistoryData] = useState<HistoricalPrice[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoadingHistory(true);
+
+    fetchRealHistory(etf.ticker, timeframe)
+      .then((data) => {
+        if (isMounted && data && data.length >= 2) {
+          setHistoryData(data);
+        }
+      })
+      .catch((e) => {
+        console.warn('Failed to fetch real history:', e);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoadingHistory(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [etf.ticker, timeframe]);
+
+  // Period performance calculation
+  const periodStats = useMemo(() => {
+    if (historyData.length < 2) {
+      return { returnPct: etf.daily_change, startPrice: etf.current_price, endPrice: etf.current_price };
+    }
+    const startPrice = historyData[0].close_price;
+    const endPrice = historyData[historyData.length - 1].close_price;
+    const returnPct = startPrice > 0 ? ((endPrice - startPrice) / startPrice) * 100 : etf.daily_change;
+    return { returnPct, startPrice, endPrice };
+  }, [historyData, etf]);
+
+  // Dynamic simulation values
+  const simValue = parseFloat(simulatedAmountInput) || 0;
+  const simResult = simValue * (1 + periodStats.returnPct / 100);
+  const simProfit = simResult - simValue;
+
+  // Real Benchmark Data states
+  const [realIbovHistory, setRealIbovHistory] = useState<HistoricalPrice[]>([]);
+  const [realSp500History, setRealSp500History] = useState<HistoricalPrice[]>([]);
+  const [realCdiHistory, setRealCdiHistory] = useState<HistoricalPrice[]>([]);
+
+  // Fetch Real Benchmarks from yfinance / Supabase when toggled or timeframe changes
+  useEffect(() => {
+    let isMounted = true;
+    
+    // Fetch Real Ibovespa (^BVSP)
+    fetchRealHistory('^BVSP', timeframe).then((data) => {
+      if (isMounted && data.length > 0) setRealIbovHistory(data);
+    });
+
+    // Fetch Real S&P 500 (IVVB11 / ^GSPC)
+    fetchRealHistory('IVVB11', timeframe).then((data) => {
+      if (isMounted && data.length > 0) setRealSp500History(data);
+    });
+
+    // Fetch Official Real CDI (Banco Central do Brasil)
+    fetchRealHistory('CDI', timeframe).then((data) => {
+      if (isMounted && data.length > 0) setRealCdiHistory(data);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [timeframe]);
+
+  // Benchmark Series Generation (Normalized to start at ETF startPrice for 100% accurate visual comparison)
+  const benchmarkSeries = useMemo(() => {
+    if (historyData.length < 2) return { cdi: [], ibov: [], sp500: [] };
+
+    const startPrice = historyData[0].close_price;
+    const totalDays = historyData.length;
+
+    // Helper to align & rebase a real raw price series to the current ETF start price
+    const normalizeSeries = (rawSeries: HistoricalPrice[]) => {
+      if (!rawSeries || rawSeries.length < 2) return [];
+      const basePrice = rawSeries[0].close_price;
+      if (basePrice <= 0) return [];
+
+      return historyData.map((etfPoint, idx) => {
+        // Find closest date in benchmark series
+        const benchMatch = rawSeries[Math.min(idx, rawSeries.length - 1)];
+        const benchRatio = benchMatch ? benchMatch.close_price / basePrice : 1;
+        return startPrice * benchRatio;
+      });
+    };
+
+    const cdi = normalizeSeries(realCdiHistory);
+    const ibov = normalizeSeries(realIbovHistory);
+    const sp500 = normalizeSeries(realSp500History);
+
+    return { cdi, ibov, sp500 };
+  }, [historyData, realCdiHistory, realIbovHistory, realSp500History]);
 
   // SVG Chart Dimensions Tracking using ResizeObserver
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -72,10 +245,9 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
         const { width, height } = entry.contentRect;
-        // set dimensions (leave some padding)
         setChartDimensions({
           width: Math.max(width, 300),
-          height: 300 // fixed height is fine, width is fluid
+          height: 300
         });
       }
     });
@@ -89,18 +261,25 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
   // Hover chart tooltip tracking
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
-  // Compute stats of historical prices for graphing
+  // Compute stats of historical prices for graphing (including enabled benchmarks)
   const chartStats = useMemo(() => {
     if (historyData.length === 0) return { min: 0, max: 100, range: 100 };
-    const prices = historyData.map(h => h.close_price);
-    const min = Math.min(...prices) * 0.98; // 2% room below
-    const max = Math.max(...prices) * 1.02; // 2% room above
-    return { min, max, range: max - min };
-  }, [historyData]);
+    let prices = historyData.map(h => h.close_price);
+    
+    if (showCDI && benchmarkSeries.cdi.length > 0) prices = prices.concat(benchmarkSeries.cdi);
+    if (showIBOV && benchmarkSeries.ibov.length > 0) prices = prices.concat(benchmarkSeries.ibov);
+    if (showSP500 && benchmarkSeries.sp500.length > 0) prices = prices.concat(benchmarkSeries.sp500);
 
-  // SVG path generation
-  const svgPath = useMemo(() => {
-    if (historyData.length < 2) return '';
+    const min = Math.min(...prices) * 0.98;
+    const max = Math.max(...prices) * 1.02;
+    const rawRange = max - min;
+    const range = rawRange === 0 ? 1 : rawRange;
+    return { min, max, range };
+  }, [historyData, showCDI, showIBOV, showSP500, benchmarkSeries]);
+
+  // Helper to build SVG Path for any series
+  const buildSvgPath = (values: number[]) => {
+    if (values.length < 2) return '';
     const { width, height } = chartDimensions;
     const paddingLeft = 10;
     const paddingRight = 60;
@@ -110,15 +289,24 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
     const graphWidth = width - paddingLeft - paddingRight;
     const graphHeight = height - paddingTop - paddingBottom;
 
-    const points = historyData.map((d, index) => {
-      const x = paddingLeft + (index / (historyData.length - 1)) * graphWidth;
-      // invert Y coordinate for screen
-      const y = paddingTop + graphHeight - ((d.close_price - chartStats.min) / chartStats.range) * graphHeight;
+    const points = values.map((val, index) => {
+      const x = paddingLeft + (index / (values.length - 1)) * graphWidth;
+      const y = paddingTop + graphHeight - ((val - chartStats.min) / chartStats.range) * graphHeight;
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     });
 
     return `M ${points.join(' L ')}`;
+  };
+
+  // Main ETF line path
+  const svgPath = useMemo(() => {
+    return buildSvgPath(historyData.map(h => h.close_price));
   }, [historyData, chartDimensions, chartStats]);
+
+  // Benchmark Paths
+  const cdiPath = useMemo(() => buildSvgPath(benchmarkSeries.cdi), [benchmarkSeries.cdi, chartDimensions, chartStats]);
+  const ibovPath = useMemo(() => buildSvgPath(benchmarkSeries.ibov), [benchmarkSeries.ibov, chartDimensions, chartStats]);
+  const sp500Path = useMemo(() => buildSvgPath(benchmarkSeries.sp500), [benchmarkSeries.sp500, chartDimensions, chartStats]);
 
   // Area path below line
   const svgAreaPath = useMemo(() => {
@@ -138,7 +326,6 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     });
 
-    // close the polygon
     const startX = paddingLeft;
     const startY = height - paddingBottom;
     const endX = paddingLeft + graphWidth;
@@ -174,28 +361,6 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
   const currentPriceDisplay = hoveredPoint ? hoveredPoint.close_price : etf.current_price;
   const isVariationPositive = etf.daily_change >= 0;
 
-  // Currency Converter math
-  const calculatedOutput = useMemo(() => {
-    const numericInput = parseFloat(calcInput) || 0;
-    if (calcMode === 'SHARES_TO_CURRENCY') {
-      // Qty of shares to money
-      const nativeTotal = numericInput * etf.current_price;
-      const brlTotal = etf.currency === 'USD' ? nativeTotal * US_TO_BRL_RATE : nativeTotal;
-      return {
-        native: nativeTotal,
-        brl: brlTotal,
-      };
-    } else {
-      // Amount of BRL to shares
-      const convertedInputToNative = etf.currency === 'USD' ? numericInput / US_TO_BRL_RATE : numericInput;
-      const shares = convertedInputToNative / etf.current_price;
-      return {
-        shares: shares,
-        native: convertedInputToNative,
-      };
-    }
-  }, [calcInput, calcMode, etf.current_price, etf.currency]);
-
   return (
     <div className="w-full space-y-6 animate-fade-in" id={`etf-detail-${etf.ticker.toLowerCase()}`}>
       
@@ -211,18 +376,6 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
         </button>
       </div>
 
-      {/* Programmatic Horizontal Premium Ad Container (Monetização) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="h-24 w-full border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950/20 flex flex-col items-center justify-center text-center p-4">
-          <span className="text-[10px] font-mono font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">
-            Espaço Publicitário Reservado (Google Ad Exchange - Leaderboard 728x90)
-          </span>
-          <span className="text-xs text-slate-300 dark:text-slate-700 font-medium mt-1">
-            Anúncio contextualizado com base no interesse do investidor em {etf.ticker}
-          </span>
-        </div>
-      </section>
-
       {/* Asset Core Header */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         <div className="md:col-span-2 space-y-4">
@@ -236,6 +389,17 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
             }`}>
               {etf.market === 'BR' ? 'B3 • Brasil' : 'NASDAQ/NYSE • EUA'}
             </span>
+
+            {/* Link para a gestora */}
+            {etf.manager && (
+              <button
+                onClick={() => onNavigate('gestora', { manager: etf.manager })}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-slate-900 text-white dark:bg-slate-800 rounded-md hover:bg-blue-600 dark:hover:bg-blue-600 transition-colors cursor-pointer"
+                title={`Ver todos os ETFs da gestora ${etf.manager}`}
+              >
+                <span>Gestora: {etf.manager}</span>
+              </button>
+            )}
 
             <button
               onClick={toggleFavorite}
@@ -257,15 +421,32 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
             >
               Comparar este ETF
             </button>
+
+            {/* Discret WhatsApp share button aligned with site palette */}
+            <button
+              onClick={() => shareEtfOnWhatsApp(etf)}
+              className="px-2.5 py-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-md transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              title="Compartilhar análise formatada para grupos de Tesouraria no WhatsApp"
+              id="btn-share-whatsapp-detail"
+            >
+              <Share2 size={13} className="text-slate-500 dark:text-slate-400" />
+              <span>WhatsApp</span>
+            </button>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               {etf.name}
             </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-mono">
-              Categoria: {etf.sector} • Padrão de Moeda: {etf.currency}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
+              <span>Categoria: <strong className="text-slate-700 dark:text-slate-300">{etf.sector}</strong></span>
+              <span>•</span>
+              <span>Moeda: <strong className="text-slate-700 dark:text-slate-300">{etf.currency}</strong></span>
+              <span>•</span>
+              <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold">
+                {etf.sector?.includes('Renda Fixa') ? 'Tributação: 15% IR (720+ dias)' : 'Tributação: 15% Venda Lote'}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -301,9 +482,36 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
               </div>
             )}
           </div>
-          <div className="p-2.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-400">
-            <RefreshCw size={18} className="animate-spin-slow" />
+          <button 
+            onClick={() => {
+              setIsLoadingHistory(true);
+              fetchRealHistory(etf.ticker, timeframe)
+                .then((data) => {
+                  if (data && data.length >= 2) setHistoryData(data);
+                })
+                .finally(() => setIsLoadingHistory(false));
+            }}
+            className="p-2.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 hover:border-blue-500/50 transition-all cursor-pointer shadow-sm group"
+            title="Atualizar cotações do período"
+            id="btn-refresh-quotes"
+          >
+            <RefreshCw size={18} className={`transition-transform duration-500 ${isLoadingHistory ? 'animate-spin text-blue-500' : 'group-hover:rotate-180'}`} />
+          </button>
+        </div>
+      </section>
+
+      {/* SEO Executive Summary (Featured Snippet Paragraph) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+            <h2 className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider font-mono">
+              Resumo Executivo • {etf.ticker}
+            </h2>
           </div>
+          <p className="text-sm sm:text-base text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
+            O <strong>{etf.ticker}</strong> ({etf.name}) é um ETF listado na B3 negociado atualmente em <strong>{etf.currency === 'USD' ? 'US$' : 'R$'} {etf.current_price.toFixed(2)}</strong>, registrando uma variação de <strong className={isVariationPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>{isVariationPositive ? '+' : ''}{etf.daily_change.toFixed(2)}%</strong> no dia. {etf.description} Possui taxa de administração de <strong>{etf.expense_ratio}% a.a.</strong>{etf.manager ? <>, gerido pela <button onClick={() => onNavigate('gestora', { manager: etf.manager })} className="font-bold underline text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors cursor-pointer">{etf.manager}</button></> : ''} e tributação aplicada à categoria de <strong>{etf.sector}</strong>.
+          </p>
         </div>
       </section>
 
@@ -317,11 +525,18 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   Gráfico Financeiro Histórico
+                  <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${
+                    periodStats.returnPct >= 0 
+                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900' 
+                      : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900'
+                  }`}>
+                    {periodStats.returnPct >= 0 ? '+' : ''}{periodStats.returnPct.toFixed(2)}% no período
+                  </span>
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {timelineLabel} (Intervalo Diário)
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {timelineLabel} • Preço Inicial: {etf.currency === 'USD' ? '$' : 'R$'} {periodStats.startPrice.toFixed(2)} ➔ Atual: {etf.currency === 'USD' ? '$' : 'R$'} {periodStats.endPrice.toFixed(2)}
                 </p>
               </div>
 
@@ -343,12 +558,66 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
               </div>
             </div>
 
+            {/* Benchmark Overlay Toggles Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1 pb-1 text-xs">
+              <span className="font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <BarChart3 size={14} className="text-blue-500" />
+                Comparar no gráfico:
+              </span>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setShowCDI(!showCDI)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
+                    showCDI
+                      ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm'
+                      : 'bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${showCDI ? 'bg-white' : 'bg-emerald-500'}`}></span>
+                  CDI (Renda Fixa)
+                </button>
+
+                <button
+                  onClick={() => setShowIBOV(!showIBOV)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
+                    showIBOV
+                      ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
+                      : 'bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${showIBOV ? 'bg-white' : 'bg-amber-500'}`}></span>
+                  Ibovespa (IBOV)
+                </button>
+
+                <button
+                  onClick={() => setShowSP500(!showSP500)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
+                    showSP500
+                      ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
+                      : 'bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${showSP500 ? 'bg-white' : 'bg-purple-600'}`}></span>
+                  S&P 500 (SPX)
+                </button>
+              </div>
+            </div>
+
             {/* Responsive SVG Chart */}
             <div 
               ref={chartContainerRef}
-              className="relative select-none"
+              className="relative select-none min-h-[300px]"
               id="detail-chart-wrapper"
             >
+              {isLoadingHistory && (
+                <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-[1px] flex flex-col items-center justify-center z-20 space-y-2 rounded-lg">
+                  <Loader2 className="animate-spin text-blue-600 dark:text-blue-400" size={28} />
+                  <span className="text-xs font-mono font-medium text-slate-600 dark:text-slate-300">
+                    Carregando cotações reais do período...
+                  </span>
+                </div>
+              )}
               <svg
                 width={chartDimensions.width}
                 height={chartDimensions.height}
@@ -397,6 +666,35 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
                   d={svgAreaPath}
                   fill="url(#chartAreaGradient)"
                 />
+
+                {/* Benchmark Lines (if toggled) */}
+                {showCDI && (
+                  <path
+                    d={cdiPath}
+                    fill="none"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    strokeDasharray="4,2"
+                  />
+                )}
+
+                {showIBOV && (
+                  <path
+                    d={ibovPath}
+                    fill="none"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                  />
+                )}
+
+                {showSP500 && (
+                  <path
+                    d={sp500Path}
+                    fill="none"
+                    stroke="#9333ea"
+                    strokeWidth={2}
+                  />
+                )}
 
                 {/* Main line path */}
                 <path
@@ -458,6 +756,115 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Simulador de Rentabilidade Histórica Dinâmico */}
+          <div className="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-xl p-5 shadow-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-bold text-sm flex items-center gap-2">
+                <TrendingUp size={16} className="text-emerald-400" />
+                Simulador Dinâmico de Retorno Histórico ({timelineLabel})
+              </h3>
+              <span className="text-[10px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-400/30">
+                Calculado no Período
+              </span>
+            </div>
+
+            {/* Input de valor, atalhos rápidos e seletores de prazo */}
+            <div className="space-y-3 bg-white/5 border border-white/10 rounded-lg p-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex-1 min-w-[180px] space-y-1">
+                  <label className="text-[10px] font-mono font-bold text-slate-300 uppercase block">
+                    Valor Inicial Aplicado (R$)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="500"
+                    value={simulatedAmountInput}
+                    onChange={(e) => setSimulatedAmountInput(e.target.value)}
+                    className="w-full text-sm font-mono font-bold bg-slate-950/80 border border-slate-700 rounded-md p-2 text-white focus:outline-none focus:border-blue-400"
+                    placeholder="10000"
+                  />
+                </div>
+
+                {/* Seletores de valor rápido */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-mono font-bold text-slate-300 uppercase block">
+                    Atalhos de Valor
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    {[1000, 5000, 10000, 50000].map((preset) => (
+                      <button
+                        key={preset}
+                        onClick={() => setSimulatedAmountInput(preset.toString())}
+                        className={`px-2.5 py-1 text-xs font-mono font-bold rounded cursor-pointer transition-all ${
+                          simValue === preset
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white/10 text-slate-300 hover:bg-white/20'
+                        }`}
+                      >
+                        R$ {(preset / 1000).toFixed(0)}k
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Seletores de prazo dedicados do simulador */}
+              <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+                <span className="text-[11px] font-mono text-slate-300 font-bold">
+                  Selecione o Prazo da Simulação:
+                </span>
+
+                <div className="flex bg-slate-950/80 rounded-md p-1 border border-slate-700 gap-1">
+                  {(['1M', '6M', '1Y', '5Y', 'MAX'] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => { setTimeframe(t); setHoverIndex(null); }}
+                      className={`px-3 py-1 text-xs font-bold font-mono rounded transition-all cursor-pointer ${
+                        timeframe === t
+                          ? 'bg-emerald-500 text-white shadow-sm'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {t === '1M' ? '1 Mês' : t === '6M' ? '6 Meses' : t === '1Y' ? '12 Meses (1Y)' : t === '5Y' ? '5 Anos' : 'Máximo'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Resultados dinâmicos */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
+                <span className="text-[10px] text-slate-300 block uppercase font-mono">Valor Inicial</span>
+                <span className="text-base font-black font-mono mt-0.5 block">
+                  R$ {simValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+
+              <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
+                <span className="text-[10px] text-slate-300 block uppercase font-mono">Saldo Final Acumulado</span>
+                <span className={`text-base font-black font-mono mt-0.5 block ${
+                  periodStats.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                }`}>
+                  R$ {simResult.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+
+              <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
+                <span className="text-[10px] text-slate-300 block uppercase font-mono">Lucro / Prejuízo Obteve</span>
+                <span className={`text-base font-black font-mono mt-0.5 block ${
+                  periodStats.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                }`}>
+                  {simProfit >= 0 ? '+' : ''}R$ {simProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <span className="text-xs font-normal ml-1 font-sans">
+                    ({periodStats.returnPct >= 0 ? '+' : ''}{periodStats.returnPct.toFixed(2)}%)
+                  </span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -555,130 +962,45 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
             </div>
           </div>
 
-          {/* Nomad International Affiliate Account Promo (Monetização) */}
-          {etf.market === 'US' && (
-            <div className="bg-slate-900 text-white border border-slate-800 rounded-xl p-5 shadow-sm relative overflow-hidden" id="brokerage-affiliate-promo">
-              <div className="absolute right-0 top-0 -translate-y-4 translate-x-4 p-3 bg-white/5 rounded-full">
-                <Wallet size={40} className="text-blue-500/10" />
-              </div>
-              
-              <div className="space-y-3.5 relative">
-                <span className="inline-block px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500 text-white rounded uppercase font-mono">
-                  Cupom Exclusivo
-                </span>
-                <h4 className="font-extrabold text-sm tracking-tight leading-tight">
-                  Invista em {etf.ticker} com Menos Taxas!
-                </h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Abra sua conta global na **Nomad** ou **Avenue** usando o link afiliado do *etf500* e ganhe até **$20 de cashback** na primeira remessa com taxa de câmbio reduzida!
-                </p>
-
-                <div className="bg-white/5 border border-white/10 rounded-lg p-2 flex items-center justify-between text-xs font-mono">
-                  <span>Código:</span>
-                  <span className="font-black text-amber-300">ETF500</span>
-                </div>
-
-                <a
-                  href="https://www.nomadglobal.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full text-center py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-colors block cursor-pointer"
-                >
-                  Abra Sua Conta Global
-                </a>
-              </div>
-            </div>
-          )}
-
-          {/* Dynamic Currency Converter Calculator */}
-          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
-            <h3 className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1">
-              <Percent size={14} className="text-blue-600" />
-              Calculadora de Conversão
+          {/* ETFs Relacionados / Semelhantes */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+            <h3 className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider text-slate-400 flex items-center justify-between">
+              <span>ETFs Relacionados</span>
+              <Tag size={12} />
             </h3>
 
-            <div className="space-y-3">
-              <div className="flex bg-white dark:bg-slate-900 rounded-md p-0.5 border border-slate-200 dark:border-slate-800">
-                <button
-                  onClick={() => { setCalcMode('SHARES_TO_CURRENCY'); setCalcInput('10'); }}
-                  className={`w-1/2 text-center py-1 text-[10px] font-bold rounded cursor-pointer ${
-                    calcMode === 'SHARES_TO_CURRENCY' ? 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white' : 'text-slate-400'
-                  }`}
-                >
-                  Cotas para Valor
-                </button>
-                <button
-                  onClick={() => { setCalcMode('CURRENCY_TO_SHARES'); setCalcInput('1000'); }}
-                  className={`w-1/2 text-center py-1 text-[10px] font-bold rounded cursor-pointer ${
-                    calcMode === 'CURRENCY_TO_SHARES' ? 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white' : 'text-slate-400'
-                  }`}
-                >
-                  Valor para Cotas
-                </button>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block">
-                  {calcMode === 'SHARES_TO_CURRENCY' ? 'Quantidade de Cotas' : 'Montante Financeiro (R$)'}
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={calcInput}
-                  onChange={(e) => setCalcInput(e.target.value)}
-                  className="w-full text-slate-950 dark:text-white bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 text-xs rounded-lg font-mono focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              {/* Conversion Outputs */}
-              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-lg space-y-2">
-                {calcMode === 'SHARES_TO_CURRENCY' ? (
-                  <>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-400">Total Moeda Nativa:</span>
-                      <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
-                        {etf.currency === 'USD' ? '$' : 'R$'} {calculatedOutput.native ? calculatedOutput.native.toFixed(2) : '0.00'}
-                      </span>
-                    </div>
-                    {etf.currency === 'USD' && (
-                      <div className="flex justify-between text-xs border-t border-slate-50 dark:border-slate-800/50 pt-2 font-bold text-blue-600 dark:text-blue-400">
-                        <span>Convertido em Reais:</span>
-                        <span className="font-mono">
-                          R$ {calculatedOutput.brl ? calculatedOutput.brl.toFixed(2) : '0.00'}
+            <div className="space-y-2">
+              {ETFS_LIST
+                .filter(e => e.ticker !== etf.ticker && (e.sector === etf.sector || e.market === etf.market))
+                .slice(0, 4)
+                .map(rel => (
+                  <div
+                    key={rel.ticker}
+                    onClick={() => onNavigate('etf', { ticker: rel.ticker })}
+                    className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all cursor-pointer flex items-center justify-between group"
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400 group-hover:underline">
+                          {rel.ticker}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {rel.currency}
                         </span>
                       </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-400">Cotas Adquiridas:</span>
-                      <span className="font-mono font-bold text-slate-800 dark:text-slate-200 bg-blue-50 dark:bg-blue-950/20 px-1.5 py-0.5 rounded text-blue-600">
-                        {calculatedOutput.shares ? calculatedOutput.shares.toFixed(4) : '0.0000'} cotas
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[140px] block">
+                        {rel.name}
                       </span>
                     </div>
-                    {etf.currency === 'USD' && (
-                      <div className="flex justify-between text-xs border-t border-slate-50 dark:border-slate-800/50 pt-2 font-mono text-slate-400">
-                        <span>Valor em Dólares:</span>
-                        <span>
-                          $ {calculatedOutput.native ? calculatedOutput.native.toFixed(2) : '0.00'}
-                        </span>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+
+                    <span className={`text-xs font-mono font-bold ${
+                      rel.daily_change >= 0 ? 'text-emerald-500' : 'text-rose-500'
+                    }`}>
+                      {rel.daily_change >= 0 ? '+' : ''}{rel.daily_change.toFixed(2)}%
+                    </span>
+                  </div>
+                ))}
             </div>
-          </div>
-
-          {/* Programmatic Sidebar Premium Ad Box (Monetização) */}
-          <div className="w-full border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950/20 p-4 flex flex-col items-center justify-center text-center">
-            <span className="text-[9px] font-mono font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">
-              Ad Banner (300x250 Medium Rectangle)
-            </span>
-            <span className="text-[11px] text-slate-300 dark:text-slate-700 mt-1 font-semibold block">
-              Espaço de publicidade reservada B2B
-            </span>
           </div>
 
         </div>

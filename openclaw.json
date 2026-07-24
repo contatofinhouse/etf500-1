@@ -1,0 +1,29 @@
+{
+  "gateway": {
+    "mode": "local"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "YOUR_TELEGRAM_BOT_TOKEN"
+    }
+  },
+  "models": {
+    "providers": {
+      "openrouter": {
+        "apiKey": "YOUR_OPENROUTER_API_KEY"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/home/ubuntu/etf500",
+      "model": {
+        "primary": "openrouter/google/gemini-2.5-flash-lite"
+      },
+      "memorySearch": {
+        "enabled": false
+      }
+    }
+  }
+}

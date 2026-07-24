@@ -4,9 +4,12 @@
  */
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { ArrowRightLeft, Info, HelpCircle, Check, Sparkles, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { ArrowRightLeft, Info, HelpCircle, Check, Sparkles, TrendingUp, TrendingDown, DollarSign, Loader2, Share2 } from 'lucide-react';
 import { ETF, HistoricalPrice } from '../types';
-import { ETFS_LIST, generateHistory } from '../data/etfData';
+import { useEtfData } from '../context/EtfDataContext';
+import { generateHistory } from '../data/etfData';
+import { fetchRealHistory, TimeFrame } from '../services/yahooFinanceApi';
+import { shareCompareOnWhatsApp } from '../utils/shareUtils';
 
 interface CompareViewProps {
   initialTickerA?: string;
@@ -14,6 +17,7 @@ interface CompareViewProps {
 }
 
 export default function CompareView({ initialTickerA, onNavigate }: CompareViewProps) {
+  const { etfs: ETFS_LIST } = useEtfData();
   // Selectors State
   const [tickerA, setTickerA] = useState<string>('IVVB11');
   const [tickerB, setTickerB] = useState<string>('VOO');
@@ -33,15 +37,44 @@ export default function CompareView({ initialTickerA, onNavigate }: CompareViewP
     }
   }, [initialTickerA]);
 
-  const etfA = useMemo(() => ETFS_LIST.find(e => e.ticker === tickerA) || ETFS_LIST[0], [tickerA]);
-  const etfB = useMemo(() => ETFS_LIST.find(e => e.ticker === tickerB) || ETFS_LIST[1], [tickerB]);
+  const etfA = useMemo(() => ETFS_LIST.find(e => e.ticker === tickerA) || ETFS_LIST[0], [tickerA, ETFS_LIST]);
+  const etfB = useMemo(() => ETFS_LIST.find(e => e.ticker === tickerB) || ETFS_LIST[1], [tickerB, ETFS_LIST]);
 
   // Comparison Timeframe
-  const [timeframe, setTimeframe] = useState<'1M' | '6M' | '1Y' | '5Y'>('1Y');
+  const [timeframe, setTimeframe] = useState<TimeFrame>('1Y');
 
-  // Fetch histories
-  const historyA = useMemo(() => generateHistory(etfA.ticker, timeframe), [etfA.ticker, timeframe]);
-  const historyB = useMemo(() => generateHistory(etfB.ticker, timeframe), [etfB.ticker, timeframe]);
+  // Real Histories state & Loading
+  const [historyA, setHistoryA] = useState<HistoricalPrice[]>([]);
+  const [historyB, setHistoryB] = useState<HistoricalPrice[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
+
+    Promise.all([
+      fetchRealHistory(etfA.ticker, timeframe),
+      fetchRealHistory(etfB.ticker, timeframe)
+    ])
+      .then(([resA, resB]) => {
+        if (isMounted) {
+          if (resA && resA.length > 0) setHistoryA(resA);
+          if (resB && resB.length > 0) setHistoryB(resB);
+        }
+      })
+      .catch((e) => {
+        console.warn('Failed to fetch compare histories:', e);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [etfA.ticker, etfB.ticker, timeframe]);
 
   // Shared interactive dimensions
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -166,15 +199,27 @@ export default function CompareView({ initialTickerA, onNavigate }: CompareViewP
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6" id="compare-view-container">
-      {/* Page Title */}
-      <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-          <ArrowRightLeft className="text-blue-600 dark:text-blue-400" size={24} />
-          Batalha Comparativa de ETFs
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Compare custos de administração, dividendos, composições de carteira e retornos históricos indexados lado a lado.
-        </p>
+      {/* Page Title & Share */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <ArrowRightLeft className="text-blue-600 dark:text-blue-400" size={24} />
+            Batalha Comparativa de ETFs
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Compare custos de administração, dividendos, composições de carteira e retornos históricos indexados lado a lado.
+          </p>
+        </div>
+
+        <button
+          onClick={() => shareCompareOnWhatsApp(tickerA, tickerB)}
+          className="px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-md transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
+          title="Compartilhar análise comparativa para grupos de Tesouraria no WhatsApp"
+          id="btn-share-whatsapp-compare"
+        >
+          <Share2 size={13} className="text-slate-500 dark:text-slate-400" />
+          <span>WhatsApp</span>
+        </button>
       </div>
 
       {/* Selectors Panel */}
@@ -255,7 +300,7 @@ export default function CompareView({ initialTickerA, onNavigate }: CompareViewP
 
           {/* Timeframe selector */}
           <div className="flex bg-slate-100 dark:bg-slate-950 rounded-lg p-0.5 border border-slate-200 dark:border-slate-800">
-            {(['1M', '6M', '1Y', '5Y'] as const).map((t) => (
+            {(['1M', '6M', '1Y', '5Y', 'MAX'] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => { setTimeframe(t); setHoverIndex(null); }}
@@ -276,19 +321,27 @@ export default function CompareView({ initialTickerA, onNavigate }: CompareViewP
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-blue-600"></span>
             <span className="font-bold text-slate-800 dark:text-slate-200">
-              {etfA.ticker}: {hoveredPoint ? `${hoveredPoint.returnA.toFixed(2)}%` : `${etfA.daily_change >= 0 ? '+' : ''}${etfA.daily_change}% (Hoje)`}
+              {etfA.ticker}: {hoveredPoint ? `${hoveredPoint.returnA.toFixed(2)}%` : `${normalizedData.length > 0 ? (normalizedData[normalizedData.length - 1].returnA >= 0 ? '+' : '') + normalizedData[normalizedData.length - 1].returnA.toFixed(2) + '%' : etfA.daily_change + '%'}`}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
             <span className="font-bold text-slate-800 dark:text-slate-200">
-              {etfB.ticker}: {hoveredPoint ? `${hoveredPoint.returnB.toFixed(2)}%` : `${etfB.daily_change >= 0 ? '+' : ''}${etfB.daily_change}% (Hoje)`}
+              {etfB.ticker}: {hoveredPoint ? `${hoveredPoint.returnB.toFixed(2)}%` : `${normalizedData.length > 0 ? (normalizedData[normalizedData.length - 1].returnB >= 0 ? '+' : '') + normalizedData[normalizedData.length - 1].returnB.toFixed(2) + '%' : etfB.daily_change + '%'}`}
             </span>
           </div>
         </div>
 
         {/* Responsive Dual-Line SVG Graph */}
-        <div ref={chartContainerRef} className="relative select-none" id="compare-chart-wrapper">
+        <div ref={chartContainerRef} className="relative select-none min-h-[300px]" id="compare-chart-wrapper">
+          {isLoading && (
+            <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-[1px] flex flex-col items-center justify-center z-20 space-y-2 rounded-lg">
+              <Loader2 className="animate-spin text-blue-600 dark:text-blue-400" size={28} />
+              <span className="text-xs font-mono font-medium text-slate-600 dark:text-slate-300">
+                Carregando histórico comparativo de {etfA.ticker} vs {etfB.ticker}...
+              </span>
+            </div>
+          )}
           <svg
             width={chartDimensions.width}
             height={chartDimensions.height}

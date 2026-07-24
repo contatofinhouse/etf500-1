@@ -1,0 +1,18 @@
+BUG - consertar botao claro / escuro
+retirar - ⚡ Novo: Comparador Avançado Lançado
+
+em Atalhos de Categorias Recomendadas
+
+inclua categoria Renda Fixa Brasil
+inclua categoria gestoras
+
+mude de Top 10 Maiores Altas do Dia para Top 10 Maiores Altas no Ano 
+
+retire = "Este site é monetizado de forma transparente por injeção de anúncios programáticos B2B e links afiliados com corretoras globais reguladas (Nomad/Avenue)."
+
+substitua © 2026 etf500. Todos os direitos reservados. por "Built proudly by ETF500.com.br 60.806.192.0001/50.  Todos os Direitos Reservados."
+
+faça nova pesquisa em base de dados B3 e garanta que TODOS OS ETFS TANTO DE RENDA FIXA QUANTO RENDA VARIAVEL QUANTO DE CRIPTO ESTEJAM INSERIDOS NA BASE DE DADOS E POSSIVEIS DE SEREM PESQUISADOS PELO USUARIO
+
+abaixo do modal Top 10, coloque logotipo de todas as gestoras de etf, exemplo, Itau, Investo, Vanguard, etc..Faça logo clicavel que mande para pagina de etf500.com.br dedicada a tal gestora dando descritivo da gestora e listando todos os seus etfs disponiveis e tambem um filtro . arvore/pagina seo.
+

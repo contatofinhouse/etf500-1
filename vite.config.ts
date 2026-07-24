@@ -11,9 +11,28 @@ export default defineConfig(() => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-icons': ['lucide-react'],
+            'vendor-motion': ['motion'],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 600,
+    },
     server: {
+      proxy: {
+        '/api/yahoo': {
+          target: 'https://query1.finance.yahoo.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/yahoo/, ''),
+        },
+      },
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},

@@ -1,643 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { ETF, HistoricalPrice } from '../types';
-
-export const US_TO_BRL_RATE = 5.65;
-
-export const ETFS_LIST: ETF[] = [
-  {
-    id: '1',
-    ticker: 'IVVB11',
-    name: 'iShares S&P 500',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.20,
-    dividend_yield: 0.00, // Reinvests automatically
-    aum: 18450, // in Millions BRL (R$ 18.4B)
-    description: 'O IVVB11 é um ETF gerido pela BlackRock Brasil que busca replicar o desempenho do índice S&P 500 das maiores empresas americanas, convertido para Reais. É uma das formas mais populares e eficientes para o investidor brasileiro acessar o mercado de ações dos EUA diretamente pela B3, contando com proteção cambial natural do Dólar.',
-    sector: 'Diversificado Global',
-    daily_change: -0.93,
-    current_price: 424.86,
-    manager: 'BlackRock',
-    holdings: [
-      { name: 'Microsoft Corp.', percentage: 7.1 },
-      { name: 'Apple Inc.', percentage: 6.8 },
-      { name: 'NVIDIA Corp.', percentage: 6.5 },
-      { name: 'Amazon.com Inc.', percentage: 3.7 },
-      { name: 'Alphabet Inc. (Google)', percentage: 3.2 },
-      { name: 'Meta Platforms (Facebook)', percentage: 2.4 },
-      { name: 'Berkshire Hathaway', percentage: 1.7 },
-      { name: 'Eli Lilly & Co.', percentage: 1.5 },
-    ]
-  },
-  {
-    id: '2',
-    ticker: 'BOVA11',
-    name: 'iShares Ibovespa',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.30,
-    dividend_yield: 0.00, // Reinvests automatically
-    aum: 12100, // in Millions BRL (R$ 12.1B)
-    description: 'O BOVA11 é o ETF mais negociado do mercado brasileiro. Gerido pela BlackRock, ele busca refletir o desempenho do índice Ibovespa, que reúne as empresas mais líquidas e representativas da B3. É ideal para quem busca exposição ampla ao mercado acionário brasileiro de forma simples e de baixo custo.',
-    sector: 'Nacional Multissetorial',
-    daily_change: -0.62,
-    current_price: 173.61,
-    manager: 'BlackRock',
-    holdings: [
-      { name: 'Vale S.A.', percentage: 11.2 },
-      { name: 'Petrobras (PETR4)', percentage: 8.5 },
-      { name: 'Itaú Unibanco', percentage: 7.2 },
-      { name: 'Petrobras (PETR3)', percentage: 4.8 },
-      { name: 'Bradesco', percentage: 4.1 },
-      { name: 'B3 S.A.', percentage: 3.5 },
-      { name: 'Ambev S.A.', percentage: 3.1 },
-      { name: 'WEG S.A.', percentage: 2.8 },
-    ]
-  },
-  {
-    id: '3',
-    ticker: 'SMAL11',
-    name: 'iShares BM&FBOVESPA Small Cap',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.50,
-    dividend_yield: 0.00,
-    aum: 5900, // R$ 5.9B
-    description: 'O SMAL11 replica o índice SMLL da B3, focado em empresas brasileiras de menor capitalização de mercado (Small Caps). Estas empresas possuem maior potencial de crescimento a longo prazo, porém com volatilidade significativamente maior do que as blue chips do Ibovespa.',
-    sector: 'Small Caps Brasil',
-    daily_change: -0.98,
-    current_price: 106.45,
-    manager: 'BlackRock',
-    holdings: [
-      { name: 'Embraer S.A.', percentage: 3.5 },
-      { name: 'Localiza Rent a Car', percentage: 3.2 },
-      { name: '3R Petroleum', percentage: 2.9 },
-      { name: 'Cury Construtora', percentage: 2.4 },
-      { name: 'São Martinho S.A.', percentage: 2.1 },
-      { name: 'Arezo&Co', percentage: 2.0 },
-      { name: 'Minerva Foods', percentage: 1.8 },
-      { name: 'Grupo Soma', percentage: 1.7 },
-    ]
-  },
-  {
-    id: '4',
-    ticker: 'HASH11',
-    name: 'Hashdex Nasdaq Crypto Index',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 1.30,
-    dividend_yield: 0.00,
-    aum: 2450, // R$ 2.4B
-    description: 'O HASH11 é pioneiro na B3, replicando o Nasdaq Crypto Index (NCI). Ele oferece exposição diversificada e regulada ao mercado de criptoativos globais, com custódia institucional de altíssima segurança. Seu portfólio inclui as principais criptomoedas do mundo de forma ponderada.',
-    sector: 'Tecnologia & Cripto',
-    daily_change: -1.25,
-    current_price: 42.56,
-    manager: 'Hashdex',
-    holdings: [
-      { name: 'Bitcoin (BTC)', percentage: 67.5 },
-      { name: 'Ethereum (ETH)', percentage: 24.2 },
-      { name: 'Solana (SOL)', percentage: 3.8 },
-      { name: 'Chainlink (LINK)', percentage: 1.2 },
-      { name: 'Uniswap (UNI)', percentage: 1.1 },
-      { name: 'Outros Criptoativos', percentage: 2.2 },
-    ]
-  },
-  {
-    id: '5',
-    ticker: 'WRLD11',
-    name: 'Investo MSCI World',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.30,
-    dividend_yield: 0.00,
-    aum: 1150, // R$ 1.1B
-    description: 'O WRLD11 investe no ETF VT (Vanguard Total World Stock), proporcionando diversificação instantânea em mais de 9.000 empresas de mais de 40 países desenvolvidos e emergentes. Ideal como pilar de diversificação global passiva para carteiras de longo prazo.',
-    sector: 'Ações Globais',
-    daily_change: -0.38,
-    current_price: 141.9,
-    manager: 'Investo',
-    holdings: [
-      { name: 'Mercado de Ações dos EUA', percentage: 62.4 },
-      { name: 'Mercados Europeus', percentage: 16.1 },
-      { name: 'Mercados Asiáticos', percentage: 11.5 },
-      { name: 'Mercados Emergentes', percentage: 8.2 },
-      { name: 'Outras Regiões', percentage: 1.8 },
-    ]
-  },
-  {
-    id: '6',
-    ticker: 'VOO',
-    name: 'Vanguard S&P 500 ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.03,
-    dividend_yield: 1.35,
-    aum: 485000, // $485B
-    description: 'O Vanguard S&P 500 ETF (VOO) investe nas 500 maiores empresas de capital aberto dos EUA. Com uma das menores taxas de administração do mercado global (apenas 0,03% ao ano), o VOO é o padrão-ouro de investimentos passivos de longo prazo do mundo inteiro.',
-    sector: 'Diversificado EUA',
-    daily_change: -1.04,
-    current_price: 679.87,
-    manager: 'Vanguard',
-    holdings: [
-      { name: 'Microsoft Corp.', percentage: 7.2 },
-      { name: 'Apple Inc.', percentage: 6.9 },
-      { name: 'NVIDIA Corp.', percentage: 6.6 },
-      { name: 'Amazon.com Inc.', percentage: 3.8 },
-      { name: 'Alphabet Inc.', percentage: 3.2 },
-      { name: 'Meta Platforms', percentage: 2.4 },
-      { name: 'Berkshire Hathaway', percentage: 1.7 },
-      { name: 'Eli Lilly & Co.', percentage: 1.5 },
-    ]
-  },
-  {
-    id: '7',
-    ticker: 'QQQ',
-    name: 'Invesco QQQ Trust Series 1',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.20,
-    dividend_yield: 0.58,
-    aum: 232000, // $232B
-    description: 'O Invesco QQQ acompanha o índice Nasdaq-100, composto pelas 100 maiores empresas não financeiras listadas na Nasdaq. É o ETF de referência mundial para investidores focados em inovação, tecnologia de ponta, internet, inteligência artificial e biotecnologia.',
-    sector: 'Tecnologia EUA',
-    daily_change: -1.47,
-    current_price: 694.98,
-    manager: 'Invesco',
-    holdings: [
-      { name: 'Microsoft Corp.', percentage: 8.8 },
-      { name: 'Apple Inc.', percentage: 8.2 },
-      { name: 'NVIDIA Corp.', percentage: 7.9 },
-      { name: 'Amazon.com Inc.', percentage: 5.1 },
-      { name: 'Meta Platforms', percentage: 4.6 },
-      { name: 'Broadcom Inc.', percentage: 4.1 },
-      { name: 'Alphabet Inc. (Class A)', percentage: 2.8 },
-      { name: 'Tesla Inc.', percentage: 2.5 },
-    ]
-  },
-  {
-    id: '8',
-    ticker: 'SCHD',
-    name: 'Schwab U.S. Dividend Equity ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.06,
-    dividend_yield: 3.42,
-    aum: 52400, // $52.4B
-    description: 'O SCHD replica o índice Dow Jones U.S. Dividend 100, focado em empresas americanas de alta qualidade, com histórico de dividendos consistentes, balanços sólidos e fundamentos robustos de rentabilidade. Excelente para investidores focados em renda passiva recorrente.',
-    sector: 'Dividendos EUA',
-    daily_change: -0.36,
-    current_price: 32.78,
-    manager: 'Schwab',
-    holdings: [
-      { name: 'Broadcom Inc.', percentage: 4.5 },
-      { name: 'AbbVie Inc.', percentage: 4.3 },
-      { name: 'Merck & Co.', percentage: 4.1 },
-      { name: 'Home Depot Inc.', percentage: 4.0 },
-      { name: 'Texas Instruments', percentage: 3.9 },
-      { name: 'Chevron Corp.', percentage: 3.8 },
-      { name: 'Amgen Inc.', percentage: 3.6 },
-      { name: 'Coca-Cola Co.', percentage: 3.5 },
-    ]
-  },
-  {
-    id: '9',
-    ticker: 'VNQ',
-    name: 'Vanguard Real Estate ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.12,
-    dividend_yield: 3.82,
-    aum: 31800, // $31.8B
-    description: 'O VNQ investe em fundos de investimento imobiliário americanos (REITs) que adquirem edifícios de escritórios, hotéis, shopping centers, galpões logísticos e residências nos EUA. É o ETF ideal para expor a sua carteira ao imobiliário global de forma líquida e com altos dividendos mensais.',
-    sector: 'Imobiliário (REITs)',
-    daily_change: -0.09,
-    current_price: 98.93,
-    manager: 'Vanguard',
-    holdings: [
-      { name: 'Prologis Inc. (Galpões)', percentage: 7.8 },
-      { name: 'American Tower Corp. (Antenas)', percentage: 6.9 },
-      { name: 'Equinix Inc. (Data Centers)', percentage: 5.5 },
-      { name: 'Simon Property Group (Shoppings)', percentage: 3.8 },
-      { name: 'Welltower Inc. (Hospitais/Sênior)', percentage: 3.5 },
-      { name: 'Digital Realty Trust', percentage: 3.1 },
-      { name: 'Public Storage', percentage: 2.9 },
-      { name: 'Realty Income Corp.', percentage: 2.7 },
-    ]
-  },
-  {
-    id: '10',
-    ticker: 'XINA11',
-    name: 'Trend China B3',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.30,
-    dividend_yield: 0.00,
-    aum: 520, // R$ 520M
-    description: 'O XINA11 replica o índice MSCI China, reunindo gigantes do mercado de tecnologia, varejo, energia e manufatura chinês. Uma das poucas formas acessíveis para o brasileiro de diversificar a carteira para fora do eixo Ocidental de forma simples.',
-    sector: 'Mercados Emergentes',
-    daily_change: -1.12,
-    current_price: 7.04,
-    manager: 'XP',
-    holdings: [
-      { name: 'Tencent Holdings', percentage: 14.1 },
-      { name: 'Alibaba Group', percentage: 8.5 },
-      { name: 'Meituan Dianping', percentage: 4.2 },
-      { name: 'China Construction Bank', percentage: 3.1 },
-      { name: 'JD.com Inc.', percentage: 2.4 },
-      { name: 'Baidu Inc.', percentage: 1.8 },
-      { name: 'Xiaomi Corp.', percentage: 1.5 },
-      { name: 'Ping An Insurance', percentage: 1.4 },
-    ]
-  },
-  {
-    id: '11',
-    ticker: 'B5P211',
-    name: 'Itaú IMA-B 5',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.20,
-    dividend_yield: 0.00,
-    aum: 4800, // R$ 4.8B
-    description: 'O B5P211 é o principal ETF de Renda Fixa do Brasil. Replica o índice IMA-B 5 da ANBIMA, composto por títulos públicos Tesouro IPCA+ com prazo de vencimento inferior a 5 anos. Combina proteção contra a inflação com menor volatilidade.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: 0.04,
-    current_price: 108.84,
-    manager: 'Itaú',
-    holdings: [
-      { name: 'NTN-B (Tesouro IPCA+) 2026', percentage: 28.5 },
-      { name: 'NTN-B (Tesouro IPCA+) 2028', percentage: 26.2 },
-      { name: 'NTN-B (Tesouro IPCA+) 2025', percentage: 24.1 },
-      { name: 'NTN-B (Tesouro IPCA+) 2030', percentage: 21.2 },
-    ]
-  },
-  {
-    id: '12',
-    ticker: 'IMAB11',
-    name: 'Itaú IMA-B Geral',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.25,
-    dividend_yield: 0.00,
-    aum: 3200, // R$ 3.2B
-    description: 'O IMAB11 replica o índice IMA-B Geral da ANBIMA, cobrindo toda a família de títulos públicos indexados à inflação (NTN-B). É a principal referência da renda fixa de longo prazo no Brasil.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: -0.19,
-    current_price: 112.93,
-    manager: 'Itaú',
-    holdings: [
-      { name: 'NTN-B Vencimento Longo (2035-2055)', percentage: 42.1 },
-      { name: 'NTN-B Vencimento Médio (2030-2035)', percentage: 31.5 },
-      { name: 'NTN-B Vencimento Curto (2026-2030)', percentage: 26.4 },
-    ]
-  },
-  {
-    id: '13',
-    ticker: 'LFTS11',
-    name: 'Investo Tesouro Selic',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.19,
-    dividend_yield: 0.00,
-    aum: 1850, // R$ 1.85B
-    description: 'O LFTS11 replica o índice de títulos Tesouro Selic (LFT), oferecendo liquidez diária com a máxima segurança de crédito soberano do Brasil e alíquota fixa de imposto de renda de 15% após 720 dias.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: 0.06,
-    current_price: 156.79,
-    manager: 'Investo',
-    holdings: [
-      { name: 'LFT (Tesouro Selic) 2027', percentage: 48.0 },
-      { name: 'LFT (Tesouro Selic) 2029', percentage: 52.0 },
-    ]
-  },
-  {
-    id: '14',
-    ticker: 'DEB11',
-    name: 'Trend Debêntures Incentivadas',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.30,
-    dividend_yield: 0.00,
-    aum: 920, // R$ 920M
-    description: 'O DEB11 busca replicar o desempenho de uma carteira diversificada de debêntures incentivadas de infraestrutura (isentas de IR para pessoas físicas), emitidas por grandes empresas brasileiras.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: 0.18,
-    current_price: 96.10,
-    manager: 'XP',
-    holdings: [
-      { name: 'Debêntures Infraestrutura Energia', percentage: 38.5 },
-      { name: 'Debêntures Saneamento & Transportes', percentage: 31.2 },
-      { name: 'Debêntures Telecomunicações', percentage: 20.3 },
-      { name: 'Caixa / Títulos Públicos', percentage: 10.0 },
-    ]
-  },
-  {
-    id: '15',
-    ticker: 'DIVO11',
-    name: 'Itaú IDIV Dividendos',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.50,
-    dividend_yield: 0.00,
-    aum: 2100, // R$ 2.1B
-    description: 'O DIVO11 replica o Índice Dividendos (IDIV) da B3, selecionando as empresas brasileiras com os maiores históricas de distribuição de proventos e sólidos fundamentos de caixa.',
-    sector: 'Nacional Dividendos',
-    daily_change: 1.1,
-    current_price: 129.1,
-    manager: 'Itaú',
-    holdings: [
-      { name: 'BB Seguridade', percentage: 8.2 },
-      { name: 'Banco do Brasil', percentage: 7.8 },
-      { name: 'CPFL Energia', percentage: 6.5 },
-      { name: 'Taesa', percentage: 5.9 },
-      { name: 'Engie Brasil', percentage: 5.4 },
-      { name: 'Telefônica Brasil (Vivo)', percentage: 4.8 },
-    ]
-  },
-  {
-    id: '16',
-    ticker: 'GOLD11',
-    name: 'Trend ETF Ouro',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.40,
-    dividend_yield: 0.00,
-    aum: 850, // R$ 850M
-    description: 'O GOLD11 oferece exposição direta ao preço do Ouro em Dólar negociado no mercado internacional (LBMA), funcionando como uma reserva de valor e proteção patrimonial contra crises inflacionárias.',
-    sector: 'Commodities & Reserva',
-    daily_change: -1.38,
-    current_price: 21.4,
-    manager: 'XP',
-    holdings: [
-      { name: 'iShares Gold Trust (IAU)', percentage: 98.5 },
-      { name: 'Caixa / Operações em BRL', percentage: 1.5 },
-    ]
-  },
-  {
-    id: '17',
-    ticker: 'QBTC11',
-    name: 'QR Bitcoin ETF',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.75,
-    dividend_yield: 0.00,
-    aum: 650, // R$ 650M
-    description: 'O QBTC11 é o primeiro ETF 100% exposto ao Bitcoin da América Latina, acompanhando o CME CF Bitcoin Reference Rate com custódia física institucional de altíssima segurança.',
-    sector: 'Tecnologia & Cripto',
-    daily_change: -1.14,
-    current_price: 19.92,
-    manager: 'QR Capital',
-    holdings: [
-      { name: 'Bitcoin (BTC Custódia Física)', percentage: 100.0 }
-    ]
-  },
-  {
-    id: '18',
-    ticker: 'IB5M11',
-    name: 'Itaú IMA-B 5+',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.20,
-    dividend_yield: 0.00,
-    aum: 2150, // R$ 2.15B
-    description: 'O IB5M11 replica o índice IMA-B 5+ da ANBIMA, composto por títulos públicos Tesouro IPCA+ com prazo de vencimento superior a 5 anos. Ideal para quem busca maior rentabilidade real a longo prazo.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: -0.07,
-    current_price: 121.25,
-    manager: 'Itaú',
-    holdings: [
-      { name: 'NTN-B (Tesouro IPCA+) 2035', percentage: 32.1 },
-      { name: 'NTN-B (Tesouro IPCA+) 2045', percentage: 28.4 },
-      { name: 'NTN-B (Tesouro IPCA+) 2050', percentage: 22.5 },
-      { name: 'NTN-B (Tesouro IPCA+) 2040', percentage: 17.0 },
-    ]
-  },
-  {
-    id: '19',
-    ticker: 'NTNS11',
-    name: 'Investo Tesouro RendA+',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.19,
-    dividend_yield: 0.00,
-    aum: 410, // R$ 410M
-    description: 'O NTNS11 replica o índice de títulos Tesouro RendA+ (NTN-B1), desenhado para acumulação de aposentadoria com proteção inflacionária e fluxo de caixa planejado.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: 0.11,
-    current_price: 66.13,
-    manager: 'Investo',
-    holdings: [
-      { name: 'NTN-B1 (Tesouro RendA+) 2030-2049', percentage: 100.0 }
-    ]
-  },
-  {
-    id: '20',
-    ticker: 'IRFM11',
-    name: 'Itaú IRF-M Pré-fixado',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.20,
-    dividend_yield: 0.00,
-    aum: 1450, // R$ 1.45B
-    description: 'O IRFM11 replica o índice IRF-M da ANBIMA, composto por uma carteira diversificada de títulos públicos pré-fixados do governo brasileiro (LTN e NTN-F).',
-    sector: 'Renda Fixa Brasil',
-    daily_change: -0.24,
-    current_price: 101.28,
-    manager: 'Itaú',
-    holdings: [
-      { name: 'LTN (Tesouro Pré-fixado) 2026', percentage: 38.0 },
-      { name: 'LTN (Tesouro Pré-fixado) 2028', percentage: 34.5 },
-      { name: 'NTN-F (Tesouro Pré-fixado com Juros) 2031', percentage: 27.5 },
-    ]
-  },
-  {
-    id: '21',
-    ticker: 'DEBB11',
-    name: 'Itaú Debêntures Infraestrutura',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.25,
-    dividend_yield: 0.00,
-    aum: 1120, // R$ 1.12B
-    description: 'O DEBB11 replica o índice IDA-IPCA Infraestrutura da ANBIMA, reunindo debêntures incentivadas emitidas para financiar grandes obras de infraestrutura no Brasil, com isenção total de IR.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: 0.18,
-    current_price: 16.83,
-    manager: 'Itaú',
-    holdings: [
-      { name: 'Debêntures Setor Elétrico / Transmissão', percentage: 41.2 },
-      { name: 'Debêntures Saneamento Básico', percentage: 28.5 },
-      { name: 'Debêntures Rodovias & Logística', percentage: 20.3 },
-      { name: 'Caixa / Títulos Públicos', percentage: 10.0 },
-    ]
-  },
-  {
-    id: '22',
-    ticker: 'JURO11',
-    name: 'Sparta Debêntures Incentivadas',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.35,
-    dividend_yield: 0.00,
-    aum: 780, // R$ 780M
-    description: 'O JURO11 é gerido pela Sparta e busca superar o CDI investindo em debêntures de infraestrutura isentas de imposto de renda, com rigorosa seleção de crédito privado corporativo.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: 0.26,
-    current_price: 97.61,
-    holdings: [
-      { name: 'Debêntures Isentas AAA / AA', percentage: 85.0 },
-      { name: 'Títulos Públicos LFT / NTN-B', percentage: 15.0 },
-    ]
-  },
-  {
-    id: '23',
-    ticker: 'FIXA11',
-    name: 'Mirae Asset Fixx DI',
-    market: 'BR',
-    currency: 'BRL',
-    expense_ratio: 0.15,
-    dividend_yield: 0.00,
-    aum: 340, // R$ 340M
-    description: 'O FIXA11 acompanha o índice S&P/B3 DI Futuro de Renda Fixa, oferecendo exposição a uma carteira de contratos futuros de taxa DI para captura de juros nominais no Brasil.',
-    sector: 'Renda Fixa Brasil',
-    daily_change: -0.21,
-    current_price: 19.15,
-    holdings: [
-      { name: 'Contratos Futuros de DI (B3)', percentage: 95.0 },
-      { name: 'Caixa Soberano', percentage: 5.0 },
-    ]
-  },
-  {
-    id: '24',
-    ticker: 'BND',
-    name: 'Vanguard Total Bond Market ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.03,
-    dividend_yield: 3.65,
-    aum: 315000, // $315B
-    description: 'O BND é o maior ETF de Renda Fixa do mundo. Investe na totalidade do mercado de títulos com grau de investimento dos EUA, cobrindo Tesouro Americano (US Treasuries), bonds corporativos e mortgage-backed securities.',
-    sector: 'Renda Fixa Global',
-    daily_change: -0.19,
-    current_price: 72.26,
-    holdings: [
-      { name: 'Títulos do Tesouro dos EUA (US Treasuries)', percentage: 67.2 },
-      { name: 'Bonds Corporativos Grau de Investimento', percentage: 27.1 },
-      { name: 'Títulos Imobiliários (MBS)', percentage: 5.7 },
-    ]
-  },
-  {
-    id: '25',
-    ticker: 'AGG',
-    name: 'iShares Core U.S. Aggregate Bond ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.03,
-    dividend_yield: 3.58,
-    aum: 108000, // $108B
-    description: 'O AGG é a principal referência global para investimento passivo em renda fixa americana. Gerido pela BlackRock, busca estabilidade de capital e renda de juros pagando dividendos mensais aos cotistas.',
-    sector: 'Renda Fixa Global',
-    daily_change: -0.19,
-    current_price: 97.39,
-    holdings: [
-      { name: 'US Treasury Bonds', percentage: 42.8 },
-      { name: 'Corporate Investment Grade Bonds', percentage: 26.5 },
-      { name: 'Federal Agency Mortgage Backed', percentage: 26.2 },
-      { name: 'Commercial MBS & ABS', percentage: 4.5 },
-    ]
-  },
-  {
-    id: '26',
-    ticker: 'TLT',
-    name: 'iShares 20+ Year Treasury Bond ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.15,
-    dividend_yield: 3.92,
-    aum: 52000, // $52B
-    description: 'O TLT investe exclusivamente em Títulos do Tesouro dos EUA com prazo de vencimento superior a 20 anos. É o ativo preferido globalmente para proteção em ciclos de corte de juros pelo Federal Reserve.',
-    sector: 'Renda Fixa Global',
-    daily_change: -0.3,
-    current_price: 83.19,
-    holdings: [
-      { name: 'US Treasury Bond 20+ Anos', percentage: 100.0 }
-    ]
-  },
-  {
-    id: '27',
-    ticker: 'SHY',
-    name: 'iShares 1-3 Year Treasury Bond ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.15,
-    dividend_yield: 4.65,
-    aum: 24500, // $24.5B
-    description: 'O SHY investe em Títulos do Tesouro dos EUA de curtíssimo prazo (1 a 3 anos). Usado mundialmente como alternativa de liquidez rápida e preservação de capital em Dólar sem volatilidade.',
-    sector: 'Renda Fixa Global',
-    daily_change: -0.06,
-    current_price: 81.78,
-    holdings: [
-      { name: 'US Treasury Notes 1-3 Yrs', percentage: 100.0 }
-    ]
-  },
-  {
-    id: '28',
-    ticker: 'IEF',
-    name: 'iShares 7-10 Year Treasury Bond ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.15,
-    dividend_yield: 3.80,
-    aum: 29800, // $29.8B
-    description: 'O IEF busca replicar a curva de juros média do governo dos EUA investindo em títulos do Tesouro Americano com vencimento de 7 a 10 anos, servindo de benchmark de renda fixa intermediária.',
-    sector: 'Renda Fixa Global',
-    daily_change: -0.23,
-    current_price: 92.89,
-    holdings: [
-      { name: 'US Treasury Notes 7-10 Yrs', percentage: 100.0 }
-    ]
-  },
-  {
-    id: '29',
-    ticker: 'LQD',
-    name: 'iShares iBoxx $ Investment Grade Corporate Bond ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.14,
-    dividend_yield: 4.85,
-    aum: 31200, // $31.2B
-    description: 'O LQD investe em debêntures corporativas de altíssima nota de crédito (Grau de Investimento) emitidas por grandes corporações globais como Apple, Microsoft, JPMorgan e Bank of America.',
-    sector: 'Renda Fixa Global',
-    daily_change: -0.34,
-    current_price: 106.31,
-    holdings: [
-      { name: 'JPMorgan Chase & Co. Bonds', percentage: 2.8 },
-      { name: 'Bank of America Bonds', percentage: 2.6 },
-      { name: 'Morgan Stanley Bonds', percentage: 2.2 },
-      { name: 'Apple Inc. Bonds', percentage: 1.9 },
-      { name: 'Microsoft Corp. Bonds', percentage: 1.8 },
-    ]
-  },
-  {
-    id: '30',
-    ticker: 'TIP',
-    name: 'iShares TIPS Bond ETF',
-    market: 'US',
-    currency: 'USD',
-    expense_ratio: 0.19,
-    dividend_yield: 3.25,
-    aum: 22400, // $22.4B
-    description: 'O TIP investe em títulos do Tesouro dos EUA corrigidos pela inflação americana (Treasury Inflation-Protected Securities - TIPS), protegendo o poder de compra do Dólar contra choques inflacionários.',
-    sector: 'Renda Fixa Global',
-    daily_change: -0.17,
-    current_price: 107.59,
-    holdings: [
-      { name: 'US Treasury TIPS (CPI Index)', percentage: 100.0 }
-    ]
-  },
   {
     id: '500',
     ticker: '5GTK11',
@@ -667,8 +27,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O 5PRE11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.7,
-    current_price: 49.48,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -685,8 +45,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ABTC11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.71,
-    current_price: 101.75,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -703,8 +63,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ACWI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.78,
-    current_price: 16.56,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -721,8 +81,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O AGRI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Agronegócio & Commodities. Oferece liquidez e diversificação instantânea.',
     sector: 'Agronegócio & Commodities',
-    daily_change: 1.94,
-    current_price: 38.88,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -739,8 +99,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ALUG11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.51,
-    current_price: 42.98,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -757,8 +117,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O AREA11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.02,
-    current_price: 102.33,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -775,8 +135,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ARGE11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.66,
-    current_price: 13.56,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -793,8 +153,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O AUPO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.02,
-    current_price: 107.91,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -811,8 +171,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O AURO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.99,
-    current_price: 90.46,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -829,8 +189,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O AUVP11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.68,
-    current_price: 123.6,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -847,8 +207,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O B3BR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.0,
-    current_price: 60.76,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -865,8 +225,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O B5MB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.27,
-    current_price: 128.16,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -883,8 +243,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BBOI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Agronegócio & Commodities. Oferece liquidez e diversificação instantânea.',
     sector: 'Agronegócio & Commodities',
-    daily_change: -0.09,
-    current_price: 11.57,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -901,8 +261,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BBOV11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.82,
-    current_price: 92.83,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -919,8 +279,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BBSD11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.15,
-    current_price: 131.51,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -937,8 +297,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BCIC11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 2.23,
-    current_price: 134.59,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -955,8 +315,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BDEF11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.21,
-    current_price: 160.07,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -973,8 +333,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BDOM11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.51,
-    current_price: 133.19,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -991,8 +351,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BEST11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.36,
-    current_price: 116.87,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1009,8 +369,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BITC11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.86,
-    current_price: 54.25,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1027,8 +387,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BITH11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.71,
-    current_price: 74.16,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1045,8 +405,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BITI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.77,
-    current_price: 29.6,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1063,8 +423,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BIZD11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.72,
-    current_price: 72.95,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1081,8 +441,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BLFT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.05,
-    current_price: 110.84,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1117,8 +477,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BMMT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 2.18,
-    current_price: 162.16,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1135,8 +495,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BNDX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.73,
-    current_price: 96.96,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1153,8 +513,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BNKS11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.0,
-    current_price: 48.95,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1171,8 +531,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BOL511 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.05,
-    current_price: 110.07,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1189,8 +549,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BOVB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.34,
-    current_price: 181.11,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1207,8 +567,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BOVS11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.06,
-    current_price: 137.02,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1225,8 +585,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BOVV11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.41,
-    current_price: 182.22,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1243,8 +603,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BOVX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.5,
-    current_price: 18.11,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1261,8 +621,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BRAX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.28,
-    current_price: 147.88,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1279,8 +639,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BRAZ11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.08,
-    current_price: 12.11,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1297,8 +657,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BREW11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 2.05,
-    current_price: 143.25,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1333,8 +693,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BTER11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.03,
-    current_price: 21.2,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1351,8 +711,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BVBR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.05,
-    current_price: 22.0,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1369,8 +729,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O BXPO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.0,
-    current_price: 149.85,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'BlackRock',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1387,8 +747,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O CAPE11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.7,
-    current_price: 141.48,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1405,8 +765,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O CASA11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.91,
-    current_price: 87.4,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1423,8 +783,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O CDIB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.02,
-    current_price: 50.86,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1441,8 +801,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O CHIP11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Tecnologia. Oferece liquidez e diversificação instantânea.',
     sector: 'Tecnologia',
-    daily_change: -0.79,
-    current_price: 36.31,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1459,8 +819,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O CMDB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.09,
-    current_price: 16.76,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1477,8 +837,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O COIN11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.41,
-    current_price: 38.44,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1495,8 +855,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O CORN11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Agronegócio & Commodities. Oferece liquidez e diversificação instantânea.',
     sector: 'Agronegócio & Commodities',
-    daily_change: 1.42,
-    current_price: 7.12,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1513,8 +873,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O CRPT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: 1.42,
-    current_price: 11.45,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1549,8 +909,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O DEFI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.28,
-    current_price: 12.36,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Hashdex',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1567,8 +927,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O DIVD11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Dividendos. Oferece liquidez e diversificação instantânea.',
     sector: 'Dividendos',
-    daily_change: 1.08,
-    current_price: 63.36,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1585,8 +945,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O DOLA11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.4,
-    current_price: 10.02,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1603,8 +963,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O DOLB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.66,
-    current_price: 95.39,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1621,8 +981,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O DOLX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.2,
-    current_price: 47.1,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1639,8 +999,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O DVER11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.48,
-    current_price: 12.61,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1657,8 +1017,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O EBIT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.81,
-    current_price: 54.93,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1675,8 +1035,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ECOO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.16,
-    current_price: 144.69,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1693,8 +1053,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O EETH11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.93,
-    current_price: 39.59,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1711,8 +1071,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ELAS11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 2.21,
-    current_price: 181.5,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1729,8 +1089,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ESGB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.99,
-    current_price: 117.08,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1747,8 +1107,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ETHE11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.32,
-    current_price: 27.73,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Hashdex',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1765,8 +1125,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ETHY11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.6,
-    current_price: 49.85,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1783,8 +1143,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O EWBZ11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.92,
-    current_price: 126.65,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1801,8 +1161,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O FIND11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.21,
-    current_price: 182.21,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1819,8 +1179,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O FIXX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.38,
-    current_price: 93.12,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1837,8 +1197,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O FOMO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.27,
-    current_price: 17.16,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1873,8 +1233,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GBTC11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.67,
-    current_price: 25.31,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1891,8 +1251,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GDIV11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Dividendos. Oferece liquidez e diversificação instantânea.',
     sector: 'Dividendos',
-    daily_change: -1.37,
-    current_price: 95.21,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1909,8 +1269,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GENB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -2.23,
-    current_price: 17.57,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1927,8 +1287,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GICP11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.09,
-    current_price: 11.05,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1945,8 +1305,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GLDI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Commodities & Metais. Oferece liquidez e diversificação instantânea.',
     sector: 'Commodities & Metais',
-    daily_change: -1.9,
-    current_price: 52.7,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1963,8 +1323,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GLDX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.45,
-    current_price: 96.1,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1981,8 +1341,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GLFT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.02,
-    current_price: 111.31,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -1999,8 +1359,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GOAT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.03,
-    current_price: 56.73,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2017,8 +1377,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GOLB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.86,
-    current_price: 101.44,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2035,8 +1395,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GOLX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.76,
-    current_price: 47.89,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2053,8 +1413,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GOVE11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.39,
-    current_price: 76.62,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2071,8 +1431,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GPCA11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.0,
-    current_price: 25.39,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2089,8 +1449,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GPUS11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.26,
-    current_price: 114.1,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2107,8 +1467,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O GXUS11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.92,
-    current_price: 107.56,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2125,8 +1485,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O HERT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.47,
-    current_price: 20.99,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2143,8 +1503,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O HGBR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.18,
-    current_price: 54.94,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2161,8 +1521,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O HIGH11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.17,
-    current_price: 80.94,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2179,8 +1539,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O HODL11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -1.16,
-    current_price: 55.46,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2197,8 +1557,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O HTEK11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.03,
-    current_price: 60.58,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2215,8 +1575,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O HYBR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.04,
-    current_price: 55.01,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2233,8 +1593,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O IBOB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.51,
-    current_price: 145.39,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2251,8 +1611,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O IDKA11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.52,
-    current_price: 59.3,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2269,8 +1629,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O IMBB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.16,
-    current_price: 148.25,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2287,8 +1647,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O ISUS11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.73,
-    current_price: 43.42,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2305,8 +1665,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O IVWO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.39,
-    current_price: 20.64,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2323,8 +1683,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O IWMI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -2.04,
-    current_price: 80.75,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2341,8 +1701,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O JOGO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.87,
-    current_price: 111.31,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2359,8 +1719,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LFIN11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.12,
-    current_price: 111.98,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2377,8 +1737,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LFIX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.05,
-    current_price: 21.27,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2395,8 +1755,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LFTB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.01,
-    current_price: 123.9,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2413,8 +1773,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LFTI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.07,
-    current_price: 54.1,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2431,8 +1791,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LFTX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.08,
-    current_price: 26.1,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2449,8 +1809,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LLFT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.07,
-    current_price: 116.62,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2467,8 +1827,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LTBX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.04,
-    current_price: 26.01,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2485,8 +1845,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LTNB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.39,
-    current_price: 110.99,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2503,8 +1863,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O LVOL11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.64,
-    current_price: 139.89,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2521,8 +1881,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O MARG11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.07,
-    current_price: 121.21,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2539,8 +1899,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O MATB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 2.45,
-    current_price: 62.23,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2557,8 +1917,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O META11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.16,
-    current_price: 6.43,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2575,8 +1935,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O MILL11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -2.0,
-    current_price: 82.67,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2593,8 +1953,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NASD11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.85,
-    current_price: 20.19,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2611,8 +1971,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NB0211 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.0,
-    current_price: 49.94,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2629,8 +1989,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NB0511 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.0,
-    current_price: 49.61,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2647,8 +2007,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NB1011 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.0,
-    current_price: 49.32,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2665,8 +2025,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NBIT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.95,
-    current_price: 25.95,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2683,8 +2043,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NBOV11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.22,
-    current_price: 121.04,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2701,8 +2061,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NCDI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.07,
-    current_price: 110.96,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2719,8 +2079,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NDIV11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Dividendos. Oferece liquidez e diversificação instantânea.',
     sector: 'Dividendos',
-    daily_change: 1.36,
-    current_price: 125.63,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2755,8 +2115,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NLFA11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.08,
-    current_price: 108.4,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2773,8 +2133,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NSDV11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.69,
-    current_price: 156.7,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2791,8 +2151,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O NUCL11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.36,
-    current_price: 68.54,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2809,8 +2169,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O OURO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Commodities & Metais. Oferece liquidez e diversificação instantânea.',
     sector: 'Commodities & Metais',
-    daily_change: -1.95,
-    current_price: 90.65,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2827,8 +2187,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O PACB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.28,
-    current_price: 10.63,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2845,8 +2205,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O PACG11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.03,
-    current_price: 114.69,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2863,8 +2223,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O PACL11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.46,
-    current_price: 107.41,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2882,7 +2242,7 @@ export const ETFS_LIST: ETF[] = [
     description: 'O PEVC11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
     daily_change: 0.15,
-    current_price: 150.8,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2899,8 +2259,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O PHIP11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.39,
-    current_price: 116.18,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2917,8 +2277,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O PIBB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.4,
-    current_price: 315.35,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2935,8 +2295,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O PIPE11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.61,
-    current_price: 97.66,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2953,8 +2313,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O PKIN11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.43,
-    current_price: 116.95,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2971,8 +2331,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O POSB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.02,
-    current_price: 104.43,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -2989,8 +2349,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O PREX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.12,
-    current_price: 50.74,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3007,8 +2367,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O QDFI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -3.57,
-    current_price: 1.62,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3025,8 +2385,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O QETH11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -1.31,
-    current_price: 6.77,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Hashdex',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3043,8 +2403,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O QLBR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.76,
-    current_price: 112.25,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3061,8 +2421,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O QQQI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Tecnologia. Oferece liquidez e diversificação instantânea.',
     sector: 'Tecnologia',
-    daily_change: -1.39,
-    current_price: 93.0,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3079,8 +2439,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O QQQQ11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Tecnologia. Oferece liquidez e diversificação instantânea.',
     sector: 'Tecnologia',
-    daily_change: -1.72,
-    current_price: 128.84,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3097,8 +2457,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O QSOL11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -1.68,
-    current_price: 4.69,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3115,8 +2475,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O RARA11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.62,
-    current_price: 15.95,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3133,8 +2493,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O REVE11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.38,
-    current_price: 74.18,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3151,8 +2511,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O RICO11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -2.76,
-    current_price: 28.59,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3169,8 +2529,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SCVB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.78,
-    current_price: 81.78,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3187,8 +2547,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SFIX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: 0.11,
-    current_price: 110.78,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3205,8 +2565,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SILK11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.16,
-    current_price: 63.82,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3223,8 +2583,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SLVR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Commodities & Metais. Oferece liquidez e diversificação instantânea.',
     sector: 'Commodities & Metais',
-    daily_change: -1.88,
-    current_price: 35.99,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3241,8 +2601,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SMAB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.89,
-    current_price: 7.77,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3259,8 +2619,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SMAC11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.33,
-    current_price: 55.66,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3277,8 +2637,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SOLH11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -2.1,
-    current_price: 10.74,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3295,8 +2655,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPUB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.36,
-    current_price: 68.65,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3313,8 +2673,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPVT11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 2.8,
-    current_price: 67.85,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3331,8 +2691,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPXB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.72,
-    current_price: 16.59,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3349,8 +2709,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPXH11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -3.0,
-    current_price: 56.23,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3367,8 +2727,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPXI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.16,
-    current_price: 51.83,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3385,8 +2745,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPXR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.3,
-    current_price: 71.89,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3403,8 +2763,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPXU11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.29,
-    current_price: 16.06,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3421,8 +2781,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPYI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.36,
-    current_price: 104.85,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3439,8 +2799,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SPYR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.23,
-    current_price: 111.59,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3457,8 +2817,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O SVAL11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.18,
-    current_price: 151.37,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3475,8 +2835,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O T10R11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.16,
-    current_price: 54.55,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3493,8 +2853,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O TD3511 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.2,
-    current_price: 50.65,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3511,8 +2871,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O TD5011 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.06,
-    current_price: 49.9,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3529,8 +2889,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O TD6011 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.16,
-    current_price: 50.06,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3547,8 +2907,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O TECK11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Tecnologia. Oferece liquidez e diversificação instantânea.',
     sector: 'Tecnologia',
-    daily_change: -1.88,
-    current_price: 111.56,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3565,8 +2925,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O TECX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Tecnologia. Oferece liquidez e diversificação instantânea.',
     sector: 'Tecnologia',
-    daily_change: -0.46,
-    current_price: 166.63,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3583,8 +2943,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O TIRB11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.0,
-    current_price: 13.54,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3601,8 +2961,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O TOPY11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.6,
-    current_price: 102.11,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3619,8 +2979,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O TRIG11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 1.22,
-    current_price: 43.02,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3655,8 +3015,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O USTK11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.86,
-    current_price: 20.75,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Investo',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3673,8 +3033,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O UTEC11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.47,
-    current_price: 27.51,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3691,8 +3051,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O UTLL11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.27,
-    current_price: 122.42,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3709,8 +3069,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O VWRA11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.28,
-    current_price: 108.41,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3727,8 +3087,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O WEB311 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.64,
-    current_price: 12.45,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Hashdex',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3745,8 +3105,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O WEJR11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.66,
-    current_price: 107.62,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3763,8 +3123,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O XB3511 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: 0.12,
-    current_price: 51.65,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3781,8 +3141,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O XBCI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.7,
-    current_price: 81.89,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3799,8 +3159,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O XBOV11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -0.1,
-    current_price: 172.9,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'XP Asset',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3817,8 +3177,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O XETH11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Criptoativos. Oferece liquidez e diversificação instantânea.',
     sector: 'Criptoativos',
-    daily_change: -0.96,
-    current_price: 25.8,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'XP Asset',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3835,8 +3195,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O XFIX11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Renda Fixa Brasil. Oferece liquidez e diversificação instantânea.',
     sector: 'Renda Fixa Brasil',
-    daily_change: -0.3,
-    current_price: 13.45,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3853,8 +3213,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O XRPH11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -2.34,
-    current_price: 8.77,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3871,8 +3231,8 @@ export const ETFS_LIST: ETF[] = [
     aum: 450,
     description: 'O XSPI11 é um ETF listado e negociado em bolsa de valores para acompanhamento do índice de referência de Ações Brasil B3. Oferece liquidez e diversificação instantânea.',
     sector: 'Ações Brasil B3',
-    daily_change: -1.57,
-    current_price: 103.44,
+    daily_change: 0.15,
+    current_price: 100.0,
     manager: 'Outros',
     holdings: [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
@@ -3896,9 +3256,3 @@ export const ETFS_LIST: ETF[] = [
       { name: 'Ativos da Carteira Teórica', percentage: 100.0 }
     ]
   },
-];
-
-// Helper to generate a deterministic series of prices anchored to the asset's real current price by exact calendar date
-export function generateHistory(ticker: string, timeframe: string): HistoricalPrice[] {
-  return [];
-}

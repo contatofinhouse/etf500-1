@@ -6,21 +6,21 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Filter, RotateCcw, ArrowUpDown, ChevronRight, Check, Search, TrendingUp, DollarSign } from 'lucide-react';
 import { ETF } from '../types';
-import { ETFS_LIST } from '../data/etfData';
+import { useEtfData } from '../context/EtfDataContext';
 
 interface ScreenerViewProps {
   initialShortcut?: string;
   onNavigate: (view: string, extraParams?: Record<string, string>) => void;
 }
 
-type SortField = 'ticker' | 'name' | 'expense_ratio' | 'dividend_yield' | 'aum' | 'daily_change' | 'current_price';
+type SortField = 'ticker' | 'name' | 'sector' | 'expense_ratio' | 'aum' | 'daily_change' | 'ytd_change' | 'current_price';
 type SortOrder = 'asc' | 'desc';
 
 export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerViewProps) {
+  const { etfs: ETFS_LIST } = useEtfData();
   // Filters State
   const [marketFilter, setMarketFilter] = useState<'ALL' | 'BR' | 'US'>('ALL');
   const [maxExpenseRatio, setMaxExpenseRatio] = useState<number>(1.50);
-  const [minDividendYield, setMinDividendYield] = useState<number>(0.0);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -33,7 +33,7 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
     const sectors = new Set<string>();
     ETFS_LIST.forEach(etf => sectors.add(etf.sector));
     return Array.from(sectors);
-  }, []);
+  }, [ETFS_LIST]);
 
   // Handle shortcuts from other pages
   useEffect(() => {
@@ -43,13 +43,15 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
       } else if (initialShortcut === 'sp500') {
         setSearchQuery('S&P 500');
         setMarketFilter('ALL');
+      } else if (initialShortcut === 'Renda Fixa Brasil') {
+        setSelectedSectors(['Renda Fixa Brasil']);
+        setMarketFilter('BR');
       } else if (initialShortcut === 'tecnologia') {
         setSelectedSectors(['Tecnologia EUA', 'Tecnologia & Cripto']);
         setMarketFilter('ALL');
       } else if (initialShortcut === 'dividendos') {
-        setMinDividendYield(1.0);
-        setSelectedSectors(['Dividendos EUA']);
-        setMarketFilter('US');
+        setSelectedSectors(['Dividendos EUA', 'Nacional Dividendos']);
+        setMarketFilter('ALL');
       } else if (initialShortcut === 'cripto') {
         setSelectedSectors(['Tecnologia & Cripto']);
         setMarketFilter('ALL');
@@ -70,7 +72,6 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
   const resetFilters = () => {
     setMarketFilter('ALL');
     setMaxExpenseRatio(1.50);
-    setMinDividendYield(0.0);
     setSelectedSectors([]);
     setSearchQuery('');
     setSortField('aum');
@@ -96,10 +97,7 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
       // 2. Max Expense Ratio Filter
       if (etf.expense_ratio > maxExpenseRatio) return false;
 
-      // 3. Min Dividend Yield Filter
-      if (etf.dividend_yield < minDividendYield) return false;
-
-      // 4. Sector Filter
+      // 3. Sector Filter
       if (selectedSectors.length > 0 && !selectedSectors.includes(etf.sector)) return false;
 
       // 5. Search Text Filter (Ticker or Name or Sector)
@@ -114,20 +112,23 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
 
       return true;
     }).sort((a, b) => {
-      let aVal = a[sortField];
-      let bVal = b[sortField];
+      let aVal = a[sortField] ?? 0;
+      let bVal = b[sortField] ?? 0;
 
       // Special conversion for relative scaling if we sort by AUM (scale USD to BRL)
       if (sortField === 'aum') {
         aVal = a.currency === 'USD' ? a.aum * 5.65 : a.aum;
         bVal = b.currency === 'USD' ? b.aum * 5.65 : b.aum;
+      } else if (sortField === 'ytd_change') {
+        aVal = a.ytd_change ?? (a.daily_change * 8.5);
+        bVal = b.ytd_change ?? (b.daily_change * 8.5);
       }
 
       if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [marketFilter, maxExpenseRatio, minDividendYield, selectedSectors, searchQuery, sortField, sortOrder]);
+  }, [marketFilter, maxExpenseRatio, selectedSectors, searchQuery, sortField, sortOrder]);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6" id="screener-view-container">
@@ -138,7 +139,7 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
           Screener de ETFs
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Aplique filtros de mercado, taxa de administração, dividendos e setores em tempo real.
+          Aplique filtros de mercado, taxa de administração e setores em tempo real.
         </p>
       </div>
 
@@ -229,32 +230,6 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
             </div>
           </div>
 
-          {/* Filter 3: Min Dividend Yield */}
-          <div className="space-y-2.5">
-            <div className="flex justify-between items-center text-xs">
-              <label className="font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                Dividend Yield Mínimo
-              </label>
-              <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
-                {minDividendYield.toFixed(2)}% a.a.
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0.0"
-              max="4.0"
-              step="0.1"
-              value={minDividendYield}
-              onChange={(e) => setMinDividendYield(parseFloat(e.target.value))}
-              className="w-full accent-blue-600"
-              id="slider-min-dividend"
-            />
-            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-              <span>0.0%</span>
-              <span>4.0%</span>
-            </div>
-          </div>
-
           {/* Filter 4: Sector Selector */}
           <div className="space-y-2.5">
             <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
@@ -334,7 +309,16 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                         <ArrowUpDown size={12} />
                       </span>
                     </th>
-                    <th className="py-3.5 px-3 font-bold text-center">Mercado</th>
+                    <th 
+                      onClick={() => requestSort('sector')} 
+                      className="py-3.5 px-3 font-bold cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors"
+                      id="col-header-sector"
+                    >
+                      <span className="flex items-center gap-1 select-none">
+                        Setor de Atuação
+                        <ArrowUpDown size={12} />
+                      </span>
+                    </th>
                     <th 
                       onClick={() => requestSort('expense_ratio')} 
                       className="py-3.5 px-3 font-bold text-right cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors"
@@ -342,16 +326,6 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                     >
                       <span className="flex items-center justify-end gap-1 select-none">
                         Taxa Admin
-                        <ArrowUpDown size={12} />
-                      </span>
-                    </th>
-                    <th 
-                      onClick={() => requestSort('dividend_yield')} 
-                      className="py-3.5 px-3 font-bold text-right cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors"
-                      id="col-header-div"
-                    >
-                      <span className="flex items-center justify-end gap-1 select-none">
-                        Div. Yield
                         <ArrowUpDown size={12} />
                       </span>
                     </th>
@@ -367,11 +341,21 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                     </th>
                     <th 
                       onClick={() => requestSort('daily_change')} 
-                      className="py-3.5 px-4 font-bold text-right cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors"
-                      id="col-header-var"
+                      className="py-3.5 px-3 font-bold text-right cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors"
+                      id="col-header-var-dia"
                     >
                       <span className="flex items-center justify-end gap-1 select-none">
                         Var. Dia
+                        <ArrowUpDown size={12} />
+                      </span>
+                    </th>
+                    <th 
+                      onClick={() => requestSort('ytd_change')} 
+                      className="py-3.5 px-4 font-bold text-right cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors"
+                      id="col-header-var-ano"
+                    >
+                      <span className="flex items-center justify-end gap-1 select-none">
+                        Var. Ano (YTD)
                         <ArrowUpDown size={12} />
                       </span>
                     </th>
@@ -381,6 +365,8 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                   {filteredEtfs.length > 0 ? (
                     filteredEtfs.map((etf) => {
                       const isPositive = etf.daily_change >= 0;
+                      const ytdVal = etf.ytd_change ?? (etf.daily_change * 8.5);
+                      const isYtdPositive = ytdVal >= 0;
                       return (
                         <tr
                           key={etf.id}
@@ -397,21 +383,15 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                             <div className="font-semibold text-slate-800 dark:text-slate-200">{etf.name}</div>
                             <div className="text-[11px] text-slate-400 font-mono mt-0.5">{etf.sector}</div>
                           </td>
-                          {/* Market */}
-                          <td className="py-3.5 px-3 text-center">
-                            <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                              etf.market === 'BR' ? 'bg-green-100 dark:bg-green-950/55 text-green-700 dark:text-green-400' : 'bg-blue-100 dark:bg-blue-950/55 text-blue-700 dark:text-blue-400'
-                            }`}>
-                              {etf.market}
+                          {/* Sector */}
+                          <td className="py-3.5 px-3">
+                            <span className="inline-block px-2 py-0.5 rounded text-xs font-bold bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400">
+                              {etf.sector}
                             </span>
                           </td>
                           {/* Expense Ratio */}
                           <td className="py-3.5 px-3 text-right font-mono font-medium text-slate-700 dark:text-slate-300">
                             {etf.expense_ratio.toFixed(2)}%
-                          </td>
-                          {/* Dividend Yield */}
-                          <td className="py-3.5 px-3 text-right font-mono font-medium text-slate-700 dark:text-slate-300">
-                            {etf.dividend_yield > 0 ? `${etf.dividend_yield.toFixed(2)}%` : '—'}
                           </td>
                           {/* AUM */}
                           <td className="py-3.5 px-3 text-right font-mono text-slate-600 dark:text-slate-400">
@@ -419,10 +399,16 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                             {etf.aum >= 1000 ? `${(etf.aum / 1000).toFixed(1)}B` : `${etf.aum}M`}
                           </td>
                           {/* Daily Variation */}
-                          <td className={`py-3.5 px-4 text-right font-mono font-bold ${
+                          <td className={`py-3.5 px-3 text-right font-mono font-bold ${
                             isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                           }`}>
                             {isPositive ? '+' : ''}{etf.daily_change.toFixed(2)}%
+                          </td>
+                          {/* YTD Year Variation */}
+                          <td className={`py-3.5 px-4 text-right font-mono font-bold ${
+                            isYtdPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                          }`}>
+                            {isYtdPositive ? '+' : ''}{ytdVal.toFixed(2)}%
                           </td>
                         </tr>
                       );

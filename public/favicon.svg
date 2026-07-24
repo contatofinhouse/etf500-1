@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Dark Fundo Premium -->
+    <linearGradient id="bg-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <!-- Gradiente azul eletrizante para o 500 -->
+    <linearGradient id="num-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+
+    <!-- Sombra/Glow -->
+    <filter id="glow-text" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#2563eb" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Base quadrada com bordas suavemente arredondadas (estilo app icon) -->
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bg-dark)" stroke="#1e293b" stroke-width="10" />
+
+  <!-- Texto etf em azul médio + 500 em gradiente com destaque tipográfico limpo -->
+  <g text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" filter="url(#glow-text)">
+    <!-- etf em minusculo bold -->
+    <text x="256" y="225" font-size="140" font-weight="900" letter-spacing="-4" fill="#60a5fa">etf</text>
+    
+    <!-- 500 em destaque gigante em baixo -->
+    <text x="256" y="380" font-size="175" font-weight="900" letter-spacing="-5" fill="url(#num-grad)">500</text>
+  </g>
+</svg>
