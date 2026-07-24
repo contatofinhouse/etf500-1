@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Newspaper, ExternalLink, Clock, Tag, Filter, ChevronRight, Share2 } from 'lucide-react';
 import { NewsArticle } from '../types';
-import { fetchNews, fetchNewsByCategory, getRelativeTime } from '../services/newsService';
+import { fetchLiveNewsByCategory, getRelativeTime } from '../services/newsService';
 import { shareNewsOnWhatsApp } from '../utils/shareUtils';
 
 interface NoticiasViewProps {
@@ -27,10 +27,18 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default function NoticiasView({ onNavigate }: NoticiasViewProps) {
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [news, setNews] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const data = fetchNewsByCategory(activeCategory);
-    setNews(data);
+    let isMounted = true;
+    setLoading(true);
+    fetchLiveNewsByCategory(activeCategory).then((data) => {
+      if (isMounted) {
+        setNews(data);
+        setLoading(false);
+      }
+    });
+    return () => { isMounted = false; };
   }, [activeCategory]);
 
   // SEO: Dynamic title & meta description

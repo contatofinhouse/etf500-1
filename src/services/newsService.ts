@@ -149,18 +149,61 @@ const SEED_NEWS: NewsArticle[] = [
   }
 ];
 
+import { SUPABASE_URL, supabaseHeaders } from './supabaseConfig';
+
 /**
- * Fetches the latest ETF news.
- * In production, this will query Supabase.
- * For now, returns curated seed data from real Google News RSS scrape.
+ * Fetches latest ETF news asynchronously from Supabase, falling back to static seed data.
+ */
+export async function fetchLiveNews(limit: number = 20): Promise<NewsArticle[]> {
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/etf_news?order=published_at.desc&limit=${limit}`;
+    const res = await fetch(url, { headers: supabaseHeaders });
+    
+    if (res.ok) {
+      const data: NewsArticle[] = await res.json();
+      if (data && data.length > 0) {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('[newsService] Supabase fetch failed, using seed news:', err);
+  }
+  return SEED_NEWS.slice(0, limit);
+}
+
+/**
+ * Fetches news filtered by category asynchronously from Supabase.
+ */
+export async function fetchLiveNewsByCategory(category: string, limit: number = 30): Promise<NewsArticle[]> {
+  try {
+    let url = `${SUPABASE_URL}/rest/v1/etf_news?order=published_at.desc&limit=${limit}`;
+    if (category !== 'Todos') {
+      url = `${SUPABASE_URL}/rest/v1/etf_news?category=eq.${encodeURIComponent(category)}&order=published_at.desc&limit=${limit}`;
+    }
+    const res = await fetch(url, { headers: supabaseHeaders });
+
+    if (res.ok) {
+      const data: NewsArticle[] = await res.json();
+      if (data && data.length > 0) {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('[newsService] Supabase fetch by category failed:', err);
+  }
+
+  // Fallback to static seed data
+  if (category === 'Todos') return SEED_NEWS.slice(0, limit);
+  return SEED_NEWS.filter(n => n.category === category).slice(0, limit);
+}
+
+/**
+ * Synchronous fallback getters
  */
 export function fetchNews(limit: number = 15): NewsArticle[] {
   return SEED_NEWS.slice(0, limit);
 }
 
-/**
- * Fetches news filtered by category
- */
 export function fetchNewsByCategory(category: string, limit: number = 20): NewsArticle[] {
   if (category === 'Todos') return SEED_NEWS.slice(0, limit);
   return SEED_NEWS.filter(n => n.category === category).slice(0, limit);
@@ -184,3 +227,4 @@ export function getRelativeTime(dateStr: string): string {
   if (diffDays < 30) return `há ${Math.floor(diffDays / 7)} sem`;
   return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }
+
