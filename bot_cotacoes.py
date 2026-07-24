@@ -10,12 +10,22 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://dfphhwgczizvxsszngrc.supabase.co")
-SUPABASE_SERVICE_KEY = (
-    os.getenv("SUPABASE_SERVICE_KEY") or 
-    os.getenv("SUPABASE_SERVICE_ROLE_KEY") or 
-    os.getenv("SUPABASE_KEY") or 
-    ""
-)
+
+def resolve_supabase_key():
+    for var_name in [
+        "SUPABASE_SERVICE_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "SUPABASE_KEY",
+        "SUPABASE_SECRET",
+        "SERVICE_ROLE_KEY",
+        "SERVICE_ROLE"
+    ]:
+        val = (os.getenv(var_name) or "").strip()
+        if val:
+            return val
+    return ""
+
+SUPABASE_SERVICE_KEY = resolve_supabase_key()
 
 # =============================================================================
 # LISTA COMPLETA DE TODOS OS 30 ETFs DO SITE ETF500
@@ -1514,12 +1524,17 @@ def get_jwt_role(token: str) -> str:
     return 'unknown'
 
 def run_pipeline(full_load=False):
-    if not SUPABASE_SERVICE_KEY:
-        print("[ERRO CRÍTICO] SUPABASE_SERVICE_KEY não configurada! Configure a variável no .env ou nos Secrets do GitHub.")
+    key = resolve_supabase_key()
+    print(f"[DEBUG ENV] SUPABASE_URL: '{SUPABASE_URL}'")
+    print(f"[DEBUG ENV] Tamanho da chave encontrada: {len(key)} caracteres")
+
+    if not key:
+        print("[ERRO CRÍTICO] Nenhuma chave do Supabase foi encontrada nas variáveis de ambiente!")
+        print("Certifique-se de cadastrar SUPABASE_SERVICE_KEY em Settings -> Secrets and variables -> Actions no GitHub.")
         sys.exit(1)
 
-    role = get_jwt_role(SUPABASE_SERVICE_KEY)
-    print(f"[AUTH SUPABASE] Role detectada na chave: '{role}'")
+    role = get_jwt_role(key)
+    print(f"[AUTH SUPABASE] Role detectada no JWT: '{role}'")
     if role == 'anon':
         print("\n" + "!" * 80)
         print("[ERRO DE CHAVE DO SUPABASE] A secret configurada no GitHub é a chave 'anon' (pública).")
