@@ -75,11 +75,11 @@ export function getYahooSymbol(ticker: string): string {
 }
 
 /**
- * Fetch real historical daily closing prices.
- * Priority order:
+ * Fetch historical daily closing prices strictly from Supabase.
+ * Per architectural directive:
  *   #1 — Official BCB Series for CDI
- *   #2 — Supabase REST API (Primary fast data source)
- *   #3 — Yahoo Finance API via CORS Proxy (Secondary fallback if Supabase table is empty)
+ *   #2 — Supabase REST API (SOLE DATA SOURCE FOR FRONTEND)
+ *   If Supabase has no data for a ticker, returns [] (no client-side fallback/proxy calls).
  */
 export async function fetchRealHistory(ticker: string, timeframe: TimeFrame): Promise<HistoricalPrice[]> {
   const cleanTicker = ticker.trim().toUpperCase();
@@ -90,7 +90,7 @@ export async function fetchRealHistory(ticker: string, timeframe: TimeFrame): Pr
     console.log(`[BCB Official] ✅ CDI — ${sliced.length} daily points for ${timeframe}`);
     return sliced;
   }
-  const cacheKey = `etf500_hist_v4_${cleanTicker}_${timeframe}`;
+  const cacheKey = `etf500_hist_v5_${cleanTicker}_${timeframe}`;
 
   // 1. Check SessionStorage cache first
   try {
@@ -105,12 +105,12 @@ export async function fetchRealHistory(ticker: string, timeframe: TimeFrame): Pr
     // Ignore storage quota errors
   }
 
-  // 2. PRIMARY: Supabase REST API
+  // 2. SOLE DATA SOURCE: Supabase REST API
   try {
     const supabaseUrl = `${SUPABASE_URL}/rest/v1/etf_historical_prices?etf_ticker=eq.${cleanTicker}&order=date.asc&select=date,close_price,volume`;
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const sbResponse = await fetch(supabaseUrl, {
       headers: supabaseHeaders,
@@ -141,64 +141,7 @@ export async function fetchRealHistory(ticker: string, timeframe: TimeFrame): Pr
     console.warn(`[Supabase] Failed for ${cleanTicker}:`, e);
   }
 
-  // 3. SECONDARY FALLBACK: Yahoo Finance via Vite dev proxy or CORS proxies
-  console.log(`[Yahoo Fallback] ⚡ Fetching real market prices for ${cleanTicker} (${timeframe})...`);
-  const symbol = getYahooSymbol(cleanTicker);
-  const { range, interval } = getTimeframeParams(timeframe);
-
-  const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}`;
-  const urlsToTry = [
-    `/api/yahoo/v8/finance/chart/${symbol}?range=${range}&interval=${interval}`, // Local Vite dev proxy
-    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,                       // Public CORS proxy 1
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,           // Public CORS proxy 2
-    targetUrl                                                                       // Direct
-  ];
-
-  for (const fetchUrl of urlsToTry) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-      const response = await fetch(fetchUrl, { signal: controller.signal });
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const json = await response.json();
-        const result = json?.chart?.result?.[0];
-
-        if (result && result.timestamp && result.indicators?.quote?.[0]?.close) {
-          const timestamps: number[] = result.timestamp;
-          const closes: (number | null)[] = result.indicators.quote[0].close;
-          const volumes: (number | null)[] = result.indicators.quote[0].volume || [];
-
-          const rawHistory: HistoricalPrice[] = [];
-
-          for (let i = 0; i < timestamps.length; i++) {
-            const closeVal = closes[i];
-            if (closeVal !== null && closeVal !== undefined && !isNaN(closeVal)) {
-              const dateStr = new Date(timestamps[i] * 1000).toISOString().split('T')[0];
-              rawHistory.push({
-                date: dateStr,
-                close_price: Math.round(closeVal * 100) / 100,
-                volume: volumes[i] || 0
-              });
-            }
-          }
-
-          if (rawHistory.length >= 2) {
-            console.log(`[Yahoo CORS] ✅ ${cleanTicker} — ${rawHistory.length} data points for ${timeframe}`);
-            try {
-              sessionStorage.setItem(cacheKey, JSON.stringify(rawHistory));
-            } catch (e) {}
-            return rawHistory;
-          }
-        }
-      }
-    } catch (e) {
-      // Timeout or network error - try next URL
-    }
-  }
-
-  console.warn(`[No Data] ⚠️ ${cleanTicker} — sem dados para ${timeframe}`);
+  // NO DATA IN SUPABASE: Return empty array per strict architectural requirement
+  console.warn(`[Supabase Empty] ⚠️ ${cleanTicker} — sem dados na tabela etf_historical_prices do Supabase para ${timeframe}`);
   return [];
 }
