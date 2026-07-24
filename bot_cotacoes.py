@@ -1500,10 +1500,34 @@ ETFS_TO_TRACK = [
     }
 ]
 
+def get_jwt_role(token: str) -> str:
+    try:
+        parts = token.split('.')
+        if len(parts) >= 2:
+            padding = '=' * (-len(parts[1]) % 4)
+            payload_b64 = parts[1] + padding
+            decoded = base64.b64decode(payload_b64).decode('utf-8')
+            data = json.loads(decoded)
+            return data.get('role', 'unknown')
+    except Exception:
+        pass
+    return 'unknown'
+
 def run_pipeline(full_load=False):
     if not SUPABASE_SERVICE_KEY:
         print("[ERRO CRÍTICO] SUPABASE_SERVICE_KEY não configurada! Configure a variável no .env ou nos Secrets do GitHub.")
-        return
+        sys.exit(1)
+
+    role = get_jwt_role(SUPABASE_SERVICE_KEY)
+    print(f"[AUTH SUPABASE] Role detectada na chave: '{role}'")
+    if role == 'anon':
+        print("\n" + "!" * 80)
+        print("[ERRO DE CHAVE DO SUPABASE] A secret configurada no GitHub é a chave 'anon' (pública).")
+        print("As regras de segurança RLS do Supabase exigem a chave 'service_role' (secreta) para gravação.")
+        print("Acesse o painel do Supabase -> Settings -> API -> copie a chave 'service_role' (secret).")
+        print("E atualize a Secret SUPABASE_SERVICE_KEY no seu GitHub Repository Secrets.")
+        print("!" * 80 + "\n")
+        sys.exit(1)
 
     period = "max" if full_load else "10d"
     mode_label = "FULL LOAD (histórico completo)" if full_load else "INCREMENTAL (últimos 10 dias)"
