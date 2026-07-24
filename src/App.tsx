@@ -142,6 +142,14 @@ export default function App() {
       } else if (viewParam === 'noticias') {
         document.title = 'Notícias sobre ETFs Hoje | Mercado, B3 e EUA — ETF500';
       }
+
+      // Track GA4 SPA pageview
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('config', 'G-SE4NLVX5D7', {
+          page_path: window.location.pathname + window.location.search,
+          page_title: document.title,
+        });
+      }
     };
 
     handleUrlParsing();
