@@ -39,7 +39,7 @@ export const ETFS_LIST: ETF[] = [
     name: 'iShares Ibovespa',
     market: 'BR',
     currency: 'BRL',
-    expense_ratio: 0.30,
+    expense_ratio: 0.10,
     dividend_yield: 0.00, // Reinvests automatically
     aum: 12100, // in Millions BRL (R$ 12.1B)
     description: 'O BOVA11 é o ETF mais negociado do mercado brasileiro. Gerido pela BlackRock, ele busca refletir o desempenho do índice Ibovespa, que reúne as empresas mais líquidas e representativas da B3. É ideal para quem busca exposição ampla ao mercado acionário brasileiro de forma simples e de baixo custo.',
