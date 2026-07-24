@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Compass, BarChart3, ArrowRightLeft, PieChart, Sun, Moon, Info, Share2 } from 'lucide-react';
+import { Compass, BarChart3, ArrowRightLeft, PieChart, Sun, Moon, Info, Share2, Newspaper } from 'lucide-react';
 import { useEtfData } from '../context/EtfDataContext';
 
 interface HeaderProps {
@@ -111,6 +111,18 @@ export default function Header({
               <PieChart size={16} />
               Raio-X da Carteira
             </button>
+            <button
+              onClick={() => onNavigate('noticias')}
+              className={`px-3 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2 cursor-pointer ${
+                currentView === 'noticias'
+                  ? 'bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+              id="tab-noticias"
+            >
+              <Newspaper size={16} />
+              Mercados
+            </button>
           </nav>
         </div>
 
@@ -179,49 +191,52 @@ export default function Header({
         </div>
       </div>
 
-      {/* Mobile Sub-Header Navigation */}
-      <div className="md:hidden flex items-center justify-around border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 py-2">
+      {/* Fixed Mobile Bottom Navigation Bar (< md) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 py-1.5 px-2 shadow-lg flex items-center justify-around">
         <button
-          onClick={() => onNavigate('home')}
-          className={`flex flex-col items-center gap-0.5 text-xs cursor-pointer ${
-            currentView === 'home' ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-500 dark:text-slate-400'
+          onClick={() => onNavigate('noticias')}
+          className={`flex flex-col items-center gap-0.5 text-[11px] font-medium transition-colors cursor-pointer py-1 px-3 rounded-lg ${
+            currentView === 'noticias' ? 'text-blue-600 dark:text-blue-400 font-extrabold bg-blue-50/80 dark:bg-blue-950/50' : 'text-slate-500 dark:text-slate-400'
           }`}
-          id="mobile-tab-home"
+          id="mobile-nav-mercados"
         >
-          <Compass size={16} />
-          <span>Início</span>
+          <Newspaper size={18} />
+          <span>Mercados</span>
         </button>
+
         <button
           onClick={() => onNavigate('screener')}
-          className={`flex flex-col items-center gap-0.5 text-xs cursor-pointer ${
-            currentView === 'screener' ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-500 dark:text-slate-400'
+          className={`flex flex-col items-center gap-0.5 text-[11px] font-medium transition-colors cursor-pointer py-1 px-3 rounded-lg ${
+            currentView === 'screener' ? 'text-blue-600 dark:text-blue-400 font-extrabold bg-blue-50/80 dark:bg-blue-950/50' : 'text-slate-500 dark:text-slate-400'
           }`}
-          id="mobile-tab-screener"
+          id="mobile-nav-screener"
         >
-          <BarChart3 size={16} />
+          <BarChart3 size={18} />
           <span>Screener</span>
         </button>
+
         <button
           onClick={() => onNavigate('comparar')}
-          className={`flex flex-col items-center gap-0.5 text-xs cursor-pointer ${
-            currentView === 'comparar' ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-500 dark:text-slate-400'
+          className={`flex flex-col items-center gap-0.5 text-[11px] font-medium transition-colors cursor-pointer py-1 px-3 rounded-lg ${
+            currentView === 'comparar' ? 'text-blue-600 dark:text-blue-400 font-extrabold bg-blue-50/80 dark:bg-blue-950/50' : 'text-slate-500 dark:text-slate-400'
           }`}
-          id="mobile-tab-compare"
+          id="mobile-nav-compare"
         >
-          <ArrowRightLeft size={16} />
+          <ArrowRightLeft size={18} />
           <span>Comparar</span>
         </button>
+
         <button
           onClick={() => onNavigate('raio-x')}
-          className={`flex flex-col items-center gap-0.5 text-xs cursor-pointer ${
-            currentView === 'raio-x' ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-500 dark:text-slate-400'
+          className={`flex flex-col items-center gap-0.5 text-[11px] font-medium transition-colors cursor-pointer py-1 px-3 rounded-lg ${
+            currentView === 'raio-x' ? 'text-blue-600 dark:text-blue-400 font-extrabold bg-blue-50/80 dark:bg-blue-950/50' : 'text-slate-500 dark:text-slate-400'
           }`}
-          id="mobile-tab-raio-x"
+          id="mobile-nav-raio-x"
         >
-          <PieChart size={16} />
+          <PieChart size={18} />
           <span>Raio-X</span>
         </button>
-      </div>
+      </nav>
     </header>
   );
 }

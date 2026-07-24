@@ -317,6 +317,11 @@ export default function App() {
                     Raio-X de Portfólio & Diagnóstico
                   </button>
                 </li>
+                <li>
+                  <button onClick={() => navigate('noticias')} className="hover:text-blue-600 transition-colors cursor-pointer" id="footer-link-noticias">
+                    Notícias do Mercado & Giro Diário
+                  </button>
+                </li>
               </ul>
             </div>
 

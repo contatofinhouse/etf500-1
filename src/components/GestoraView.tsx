@@ -106,6 +106,16 @@ export default function GestoraView({ managerId, onNavigate }: GestoraViewProps)
     badges: ['Fundos de Índice', 'ETFs']
   };
 
+  // Programmatic SEO: Dynamic Document Title & Description for Manager pages
+  React.useEffect(() => {
+    document.title = `ETFs da ${managerInfo.name}: Cotações, Taxas e Desempenho | ETF500`;
+    
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', `Confira a lista completa de ETFs geridos por ${managerInfo.name} (${managerInfo.displayName}). Compare taxas de administração, histórico de dividendos e rentabilidade.`);
+    }
+  }, [managerInfo]);
+
   // Filter ETFs belonging to this manager
   const managerETFs = useMemo(() => {
     return ETFS_LIST.filter(etf => {

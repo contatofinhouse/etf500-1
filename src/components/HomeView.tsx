@@ -218,21 +218,47 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
       {/* Two side-by-side Top Tables (Fintech Bloomberg Terminal style) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* Top 10 Gainers Table */}
+        {/* Top 10 Gainers Section */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col" id="panel-top-gainers">
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 flex justify-between items-center">
+          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <TrendingUp className="text-emerald-600 dark:text-emerald-400" size={18} />
-              <h3 className="font-bold text-slate-900 dark:text-white font-sans">
+              <h3 className="font-bold text-slate-900 dark:text-white font-sans text-sm sm:text-base">
                 Top 10 Maiores Altas do Dia
               </h3>
             </div>
-            <span className="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500 uppercase">
+            <span className="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:inline">
               Variação Hoje %
             </span>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* MOBILE HORIZONTAL CAROUSEL (< sm) */}
+          <div className="sm:hidden p-3 flex gap-3 overflow-x-auto no-scrollbar">
+            {topGainers.map((etf) => {
+              const isPositive = etf.daily_change >= 0;
+              return (
+                <div
+                  key={etf.id}
+                  onClick={() => onNavigate('etf', { ticker: etf.ticker, from: 'home' })}
+                  className="min-w-[170px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3 cursor-pointer shrink-0 space-y-1.5 active:scale-95 transition-transform"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-black text-sm text-slate-900 dark:text-white">{etf.ticker}</span>
+                    <span className={`text-xs font-mono font-extrabold ${isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600'}`}>
+                      {isPositive ? '+' : ''}{etf.daily_change.toFixed(2)}%
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">{etf.name}</div>
+                  <div className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
+                    {etf.currency === 'USD' ? '$' : 'R$'} {etf.current_price.toFixed(2)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* DESKTOP TABLE (>= sm) */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-800 text-[10px] uppercase font-mono tracking-wider text-slate-400 dark:text-slate-500">
@@ -281,21 +307,44 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
           </div>
         </div>
 
-        {/* Top 10 Maiores por AUM Table */}
+        {/* Top 10 Maiores por AUM Section */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col" id="panel-top-aum">
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 flex justify-between items-center">
+          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Award className="text-blue-600 dark:text-blue-400" size={18} />
-              <h3 className="font-bold text-slate-900 dark:text-white font-sans">
-                Top 10 Maiores ETFs por Patrimônio (AUM)
+              <h3 className="font-bold text-slate-900 dark:text-white font-sans text-sm sm:text-base">
+                Top 10 Maiores por Patrimônio
               </h3>
             </div>
-            <span className="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500 uppercase">
+            <span className="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:inline">
               Patrimônio Líquido
             </span>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* MOBILE HORIZONTAL CAROUSEL (< sm) */}
+          <div className="sm:hidden p-3 flex gap-3 overflow-x-auto no-scrollbar">
+            {topAum.map((etf) => {
+              return (
+                <div
+                  key={etf.id}
+                  onClick={() => onNavigate('etf', { ticker: etf.ticker, from: 'home' })}
+                  className="min-w-[170px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3 cursor-pointer shrink-0 space-y-1.5 active:scale-95 transition-transform"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-black text-sm text-slate-900 dark:text-white">{etf.ticker}</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400">{etf.market}</span>
+                  </div>
+                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">{etf.name}</div>
+                  <div className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
+                    {etf.currency === 'USD' ? 'US$' : 'R$'} {etf.aum >= 1000 ? `${(etf.aum / 1000).toFixed(1)}B` : `${etf.aum}M`}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* DESKTOP TABLE (>= sm) */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-800 text-[10px] uppercase font-mono tracking-wider text-slate-400 dark:text-slate-500">

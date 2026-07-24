@@ -1028,6 +1028,14 @@ export default function DetailView({ ticker, fromView, fromManager, onNavigate }
                   </div>
                 ))}
             </div>
+
+            <button
+              onClick={() => onNavigate('comparar', { shortcut: etf.ticker })}
+              className="w-full mt-3 py-2 px-3 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200/80 dark:border-blue-800/80 text-blue-700 dark:text-blue-300 font-bold text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+            >
+              <span>Comparar {etf.ticker} Lado a Lado</span>
+              <ArrowRight size={14} />
+            </button>
           </div>
 
         </div>
