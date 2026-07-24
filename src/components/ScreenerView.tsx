@@ -481,7 +481,7 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                 return (
                   <div
                     key={etf.id}
-                    onClick={() => onNavigate('etf', { ticker: etf.ticker })}
+                    onClick={() => onNavigate('etf', { ticker: etf.ticker, from: 'screener' })}
                     className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm active:scale-[0.99] transition-transform cursor-pointer space-y-3"
                   >
                     {/* Header: Ticker + Market Badge + Daily Change */}
@@ -636,7 +636,7 @@ export default function ScreenerView({ initialShortcut, onNavigate }: ScreenerVi
                       return (
                         <tr
                           key={etf.id}
-                          onClick={() => onNavigate('etf', { ticker: etf.ticker })}
+                          onClick={() => onNavigate('etf', { ticker: etf.ticker, from: 'screener' })}
                           className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 cursor-pointer transition-colors group"
                           id={`screener-row-${etf.ticker.toLowerCase()}`}
                         >

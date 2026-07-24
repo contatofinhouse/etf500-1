@@ -132,7 +132,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                 return (
                   <div
                     key={etf.id}
-                    onClick={() => onNavigate('etf', { ticker: etf.ticker })}
+                    onClick={() => onNavigate('etf', { ticker: etf.ticker, from: 'home' })}
                     className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center justify-between cursor-pointer"
                     id={`search-result-${etf.ticker.toLowerCase()}`}
                   >
@@ -248,7 +248,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                   return (
                     <tr
                       key={etf.id}
-                      onClick={() => onNavigate('etf', { ticker: etf.ticker })}
+                      onClick={() => onNavigate('etf', { ticker: etf.ticker, from: 'home' })}
                       className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 cursor-pointer transition-colors group"
                     >
                       <td className="py-3 px-4 font-bold font-mono text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
@@ -310,7 +310,7 @@ export default function HomeView({ onNavigate }: HomeViewProps) {
                   return (
                     <tr
                       key={etf.id}
-                      onClick={() => onNavigate('etf', { ticker: etf.ticker })}
+                      onClick={() => onNavigate('etf', { ticker: etf.ticker, from: 'home' })}
                       className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 cursor-pointer transition-colors group"
                     >
                       <td className="py-3 px-4 font-bold font-mono text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">

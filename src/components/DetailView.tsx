@@ -13,11 +13,30 @@ import { shareEtfOnWhatsApp } from '../utils/shareUtils';
 
 interface DetailViewProps {
   ticker: string;
+  fromView?: string;
+  fromManager?: string;
   onNavigate: (view: string, extraParams?: Record<string, string>) => void;
 }
 
-export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
+export default function DetailView({ ticker, fromView, fromManager, onNavigate }: DetailViewProps) {
   const { etfs: ETFS_LIST } = useEtfData();
+
+  const handleBack = () => {
+    if (fromView === 'screener') {
+      onNavigate('screener');
+    } else if (fromView === 'gestora' && fromManager) {
+      onNavigate('gestora', { manager: fromManager });
+    } else if (fromView === 'home') {
+      onNavigate('home');
+    } else {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        onNavigate('screener');
+      }
+    }
+  };
+
   // Find current ETF
   const etf = useMemo(() => {
     return ETFS_LIST.find(e => e.ticker.toUpperCase() === ticker.toUpperCase()) || ETFS_LIST[0];
@@ -367,12 +386,20 @@ export default function DetailView({ ticker, onNavigate }: DetailViewProps) {
       {/* Back button and navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <button
-          onClick={() => onNavigate('home')}
-          className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
-          id="btn-back-to-home"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-2xs"
+          id="btn-back-to-origin"
         >
           <ArrowLeft size={14} />
-          Voltar para o Início
+          <span>
+            {fromView === 'screener'
+              ? 'Voltar ao Screener de ETFs'
+              : fromView === 'gestora'
+              ? 'Voltar à Gestora'
+              : fromView === 'home'
+              ? 'Voltar à Página Inicial'
+              : 'Voltar ao Screener de ETFs'}
+          </span>
         </button>
       </div>
 

@@ -343,7 +343,7 @@ export default function GestoraView({ managerId, onNavigate }: GestoraViewProps)
           {managerETFs.map((etf) => (
             <div
               key={etf.id}
-              onClick={() => onNavigate('etf', { ticker: etf.ticker })}
+              onClick={() => onNavigate('etf', { ticker: etf.ticker, from: 'gestora', manager: managerId })}
               className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500 dark:hover:border-blue-500 transition-all shadow-sm hover:shadow-md cursor-pointer group flex flex-col justify-between"
             >
               <div>

@@ -223,6 +223,8 @@ export default function App() {
           {currentView === 'etf' && (
             <DetailView
               ticker={extraParams.ticker || 'IVVB11'}
+              fromView={extraParams.from}
+              fromManager={extraParams.manager}
               onNavigate={navigate}
             />
           )}
