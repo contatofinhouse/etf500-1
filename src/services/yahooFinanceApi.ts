@@ -107,7 +107,7 @@ export async function fetchRealHistory(ticker: string, timeframe: TimeFrame): Pr
 
   // 2. SOLE DATA SOURCE: Supabase REST API
   try {
-    const supabaseUrl = `${SUPABASE_URL}/rest/v1/etf_historical_prices?etf_ticker=eq.${cleanTicker}&order=date.asc&select=date,close_price,volume`;
+    const supabaseUrl = `${SUPABASE_URL}/rest/v1/etf_historical_prices?etf_ticker=eq.${cleanTicker}&order=date.desc&limit=1500&select=date,close_price,volume`;
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -121,11 +121,13 @@ export async function fetchRealHistory(ticker: string, timeframe: TimeFrame): Pr
     if (sbResponse.ok) {
       const sbData = await sbResponse.json();
       if (Array.isArray(sbData) && sbData.length >= 2) {
-        const fullHistory: HistoricalPrice[] = sbData.map((item: any) => ({
-          date: item.date,
-          close_price: parseFloat(item.close_price) || 0,
-          volume: item.volume || 0
-        }));
+        const fullHistory: HistoricalPrice[] = sbData
+          .map((item: any) => ({
+            date: item.date,
+            close_price: parseFloat(item.close_price) || 0,
+            volume: item.volume || 0
+          }))
+          .sort((a, b) => a.date.localeCompare(b.date));
         
         const sbHistory = sliceHistoryByTimeframe(fullHistory, timeframe);
 
